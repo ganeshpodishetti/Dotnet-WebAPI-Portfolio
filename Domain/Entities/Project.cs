@@ -8,6 +8,8 @@ public class Project : BaseEntity
     public string? Description { get; set; }
     public string? Url { get; set; }
     public string? GithubUrl { get; set; }
+    
     public Guid UserId { get; set; }
-    public User User { get; set; } = null!;
+
+    public virtual ICollection<Skill> Skills { get; set; } = [];
 }
