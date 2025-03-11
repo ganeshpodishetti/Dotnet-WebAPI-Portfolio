@@ -2,11 +2,6 @@ using Domain.Entities;
 
 namespace Domain.Interfaces;
 
-public interface IProjectRepository
+public interface IProjectRepository : IRepository<Project>
 {
-    Task<IEnumerable<Project>> GetAll();
-    Task<Project?> GetById(Guid id);
-    Task<Project> Add(Project project);
-    Task Update(Project project);
-    Task Delete(Project project);
 }

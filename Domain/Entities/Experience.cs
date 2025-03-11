@@ -11,4 +11,4 @@ public class Experience : BaseEntity
     public DateTime? EndDate { get; set; } = DateTime.UtcNow;
     public string Description { get; set; } = null!;
     public Guid UserId { get; set; }
-} 
+}

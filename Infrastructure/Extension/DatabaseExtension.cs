@@ -1,7 +1,6 @@
 using Domain.Options;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -14,17 +13,14 @@ public static class DatabaseExtension
         // Registering the PortfolioDbContext
         services.AddDbContext<PortfolioDbContext>((provider, options) =>
         {
-            var connectionString = provider.GetRequiredService<IOptions<ConnStringOptions>>().Value.PostgresSqlConnection;
-            
+            var connectionString =
+                provider.GetRequiredService<IOptions<ConnStringOptions>>().Value.PostgresSqlConnection;
+
             if (string.IsNullOrEmpty(connectionString))
-            {
                 throw new InvalidOperationException("Connection string is not configured.");
-            }
-            //var connectionString = configuration.GetConnectionString("PostgresSqlConnection");
-            
             options.UseNpgsql(connectionString);
         });
-        
+
         return services;
     }
 }
