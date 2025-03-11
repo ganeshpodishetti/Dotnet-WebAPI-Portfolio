@@ -4,11 +4,11 @@ namespace Domain.Entities;
 
 public class Experience : BaseEntity
 {
-    public required string Title { get; set; }
-    public required string CompanyName { get; set; }
-    public string? Location { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public string? Description { get; set; }
+    public string Title { get; set; } = null!;
+    public string CompanyName { get; set; } = null!;
+    public string Location { get; set; } = null!;
+    public DateTime StartDate { get; set; } = DateTime.UtcNow;
+    public DateTime? EndDate { get; set; } = DateTime.UtcNow;
+    public string Description { get; set; } = null!;
     public Guid UserId { get; set; }
-}
+} 
