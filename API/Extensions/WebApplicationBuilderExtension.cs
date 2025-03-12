@@ -1,5 +1,4 @@
 using Domain.Options;
-using Microsoft.AspNetCore.Identity;
 
 namespace API.Extensions;
 
@@ -10,11 +9,8 @@ public static class WebApplicationBuilderExtension
         // Registering the DbContext
         builder.Services.Configure<ConnStringOptions>(
             builder.Configuration.GetSection(ConnStringOptions.ConnectionStrings));
-
-        builder.Services.AddAuthentication()
-            .AddBearerToken(IdentityConstants.BearerScheme);
-
-        builder.Services.AddAuthorization();
+        builder.Services.Configure<JwtOptions>(
+            builder.Configuration.GetSection(JwtOptions.JwtConfig));
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();

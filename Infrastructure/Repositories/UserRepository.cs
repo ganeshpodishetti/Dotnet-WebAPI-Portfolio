@@ -5,6 +5,6 @@ using Infrastructure.Context;
 namespace Infrastructure.Repositories;
 
 internal class UserRepository(PortfolioDbContext context)
-    : Repository<User>(context), IUserRepository
+    : GenericRepository<User>(context), IUserRepository
 {
 }

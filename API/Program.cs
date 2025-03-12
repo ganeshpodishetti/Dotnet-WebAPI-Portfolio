@@ -1,6 +1,5 @@
 using API.Extensions;
 using Application.Extensions;
-using Domain.Entities;
 using Infrastructure.Extension;
 using Scalar.AspNetCore;
 
@@ -12,6 +11,7 @@ try
     builder.AddPresentation();
     builder.Services.AddScalarOpenApi();
     builder.Services.AddDatabase();
+    builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddInfrastructure();
     builder.Services.AddApplication();
 
@@ -20,10 +20,11 @@ try
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
+        app.UseDeveloperExceptionPage();
         app.MapOpenApi();
         app.MapScalarApiReference(opt =>
             opt
-                .WithTitle("Restaurant API")
+                .WithTitle("Portfolio API")
                 .WithTheme(ScalarTheme.Mars)
                 .WithDarkMode(true)
                 .WithSidebar(true)
@@ -35,21 +36,15 @@ try
     }
 
     app.UseHttpsRedirection();
-
     app.UseRouting();
-
-    app.MapGroup("api/identity")
-        .WithTags("Identity")
-        .MapIdentityApi<User>();
-
     app.UseAuthentication();
     app.UseAuthorization();
-
     app.MapControllers();
 
     app.Run();
 }
 catch (Exception ex)
 {
+    Console.WriteLine(ex.Message);
     throw new Exception("An error occurred while start-up the application.");
 }

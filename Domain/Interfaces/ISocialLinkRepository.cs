@@ -2,6 +2,6 @@ using Domain.Entities;
 
 namespace Domain.Interfaces;
 
-public interface ISocialLinkRepository : IRepository<SocialLink>
+public interface ISocialLinkRepository : IGenericRepository<SocialLink>
 {
 }
