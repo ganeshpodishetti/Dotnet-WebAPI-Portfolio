@@ -8,6 +8,7 @@ namespace API.Controllers;
 [Route("api/user")]
 public class UserController(IUserServices userServices) : Controller
 {
+    // GET: api/user/GetUserProfiles/id
     [HttpGet("GetUserProfiles/{userId}")]
     public async Task<IActionResult> GetUserProfiles(string userId)
     {
@@ -15,6 +16,7 @@ public class UserController(IUserServices userServices) : Controller
         return Ok(result);
     }
 
+    // POST: api/user/AddUserProfile
     [HttpPost("AddUserProfile")]
     public async Task<IActionResult> AddUserProfile(UserProfileDto userProfileDto)
     {

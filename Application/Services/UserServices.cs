@@ -9,9 +9,13 @@ namespace Application.Services;
 public class UserServices(IUnitOfWork unitOfWork, IMapper mapper)
     : IUserServices
 {
-    public async Task<UserProfileDto> GetProfileByIdAsync(string userId)
+    public async Task<UserProfileDto?> GetProfileByIdAsync(string userId)
     {
-        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
+        if (!Guid.TryParse(userId, out var id))
+            throw new ArgumentException("Invalid user ID format", nameof(userId));
+
+        var user = await unitOfWork.UserRepository.GetByIdAsync(id);
+        if (user == null) return null;
         var result = mapper.Map<UserProfileDto>(user);
         return result;
     }
