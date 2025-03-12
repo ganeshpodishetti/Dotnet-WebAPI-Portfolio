@@ -15,12 +15,12 @@ public static class InfrastructureExtension
 
         // Registering the Repositories
         services.AddScoped<IRepository<User>, Repository<User>>();
-        services.AddScoped<IRepository<Skill>, Repository<Skill>>();
-        services.AddScoped<IRepository<Project>, Repository<Project>>();
-        services.AddScoped<IRepository<Message>, Repository<Message>>();
-        services.AddScoped<IRepository<Education>, Repository<Education>>();
-        services.AddScoped<IRepository<Experience>, Repository<Experience>>();
-        services.AddScoped<IRepository<SocialLink>, Repository<SocialLink>>();
+        // services.AddScoped<IRepository<Skill>, Repository<Skill>>();
+        // services.AddScoped<IRepository<Project>, Repository<Project>>();
+        // services.AddScoped<IRepository<Message>, Repository<Message>>();
+        // services.AddScoped<IRepository<Education>, Repository<Education>>();
+        // services.AddScoped<IRepository<Experience>, Repository<Experience>>();
+        // services.AddScoped<IRepository<SocialLink>, Repository<SocialLink>>();
 
         return services;
     }

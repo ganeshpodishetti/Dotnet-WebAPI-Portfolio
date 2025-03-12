@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;
+using Domain.Entities;
 using Domain.UnitOfWork;
 
 namespace Application.Services;
@@ -8,9 +9,9 @@ namespace Application.Services;
 public class UserServices(IUnitOfWork unitOfWork, IMapper mapper)
     : IUserServices
 {
-    public async Task<UserProfileDto> GetProfileAsync()
+    public async Task<UserProfileDto> GetProfileByIdAsync(string userId)
     {
-        var user = await unitOfWork.User.GetAllAsync();
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
         var result = mapper.Map<UserProfileDto>(user);
         return result;
     }
@@ -27,6 +28,9 @@ public class UserServices(IUnitOfWork unitOfWork, IMapper mapper)
 
     public async Task<bool> AddProfileAsync(UserProfileDto userProfileDto)
     {
-        throw new NotImplementedException();
+        var user = mapper.Map<User>(userProfileDto);
+        await unitOfWork.UserRepository.AddAsync(user);
+        await unitOfWork.CommitAsync();
+        return true;
     }
 }
