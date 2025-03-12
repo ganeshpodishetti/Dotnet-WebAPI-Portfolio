@@ -1,4 +1,3 @@
-using Domain.Entities;
 using Domain.Interfaces;
 using Domain.UnitOfWork;
 using Infrastructure.Repositories;
@@ -11,10 +10,10 @@ public static class InfrastructureExtension
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         // Registering the UnitOfWork
-        services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+        services.AddTransient<IUnitOfWork, UnitOfWork.UnitOfWork>();
 
         // Registering the Repositories
-        services.AddScoped<IRepository<User>, Repository<User>>();
+        services.AddTransient<IUserRepository, UserRepository>();
         // services.AddScoped<IRepository<Skill>, Repository<Skill>>();
         // services.AddScoped<IRepository<Project>, Repository<Project>>();
         // services.AddScoped<IRepository<Message>, Repository<Message>>();

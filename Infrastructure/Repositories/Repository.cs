@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-internal class Repository<T>(PortfolioDbContext context)
+internal abstract class Repository<T>(PortfolioDbContext context)
     : IRepository<T> where T : class
 {
     // Add a new entity
@@ -22,27 +22,12 @@ internal class Repository<T>(PortfolioDbContext context)
         }
     }
 
-    // Update an existing entity
-    public bool UpdateAsync(T entity)
-    {
-        try
-        {
-            context.Set<T>().Update(entity);
-            return true;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-
-    // Get an entity by id
     public async Task<T?> GetByIdAsync(object id, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await context.Set<T>().FindAsync(id, cancellationToken);
+            var entity = await context.Set<T>().FindAsync(id, cancellationToken);
+            return entity;
         }
         catch (Exception e)
         {
@@ -65,12 +50,28 @@ internal class Repository<T>(PortfolioDbContext context)
         }
     }
 
-    // Delete an entity
-    public bool DeleteAsync(T entity)
+    // Update an existing entity
+    public Task<bool> UpdateAsync(T entity)
     {
         try
         {
-            context.Set<T>().Remove(entity);
+            context.Set<T>().Update(entity);
+            return Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    // Delete an entity
+    public async Task<bool> DeleteAsync(object id)
+    {
+        try
+        {
+            var entity = await context.Set<T>().FindAsync(id);
+            if (entity != null) context.Set<T>().Remove(entity);
             return true;
         }
         catch (Exception e)
