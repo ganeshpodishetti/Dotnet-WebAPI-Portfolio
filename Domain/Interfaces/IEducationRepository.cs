@@ -2,6 +2,6 @@ using Domain.Entities;
 
 namespace Domain.Interfaces;
 
-public interface IEducationRepository : IRepository<Education>
+public interface IEducationRepository : IGenericRepository<Education>
 {
 }

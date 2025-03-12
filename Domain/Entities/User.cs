@@ -4,13 +4,13 @@ namespace Domain.Entities;
 
 public class User : IdentityUser<Guid>
 {
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public virtual Profile Profile { get; set; } = null!;
-    public virtual ICollection<Education> Educations { get; set; } = [];
-    public virtual ICollection<Experience> Experiences { get; set; } = [];
-    public virtual ICollection<Project> Projects { get; set; } = [];
-    public virtual ICollection<Skill> Skills { get; set; } = [];
-    public virtual ICollection<SocialLink> SocialLinks { get; set; } = [];
+    public Profile Profile { get; set; } = null!;
+    public ICollection<Education> Educations { get; private set; } = [];
+    public ICollection<Experience> Experiences { get; private set; } = [];
+    public ICollection<Project> Projects { get; private set; } = [];
+    public ICollection<Skill> Skills { get; private set; } = [];
+    public ICollection<SocialLink> SocialLinks { get; private set; } = [];
 }
