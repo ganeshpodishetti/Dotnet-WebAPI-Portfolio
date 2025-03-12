@@ -8,4 +8,5 @@ public interface IIdentityRepository
     Task<User> UpdateUserAsync(User user);
     Task<bool> ValidateCredentialsAsync(string email, string password);
     Task<User?> FindByEmailAsync(string email);
+    Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
 }

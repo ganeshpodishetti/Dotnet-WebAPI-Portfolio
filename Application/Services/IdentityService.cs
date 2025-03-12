@@ -11,6 +11,7 @@ public class IdentityService(
     IJwtTokenService jwtTokenService,
     IMapper mapper) : IIdentityService
 {
+    // register a new user
     public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request)
     {
         var email = request.Email ?? throw new Exception("Email is required");
@@ -20,13 +21,12 @@ public class IdentityService(
         var user = mapper.Map<User>(request);
 
         var createdUser = await identityRepository.CreateUserAsync(user, request.Password);
-        //var token = await jwtTokenService.GenerateJwtToken(createdUser);
-        //var refreshToken = jwtTokenService.GenerateRefreshToken();
 
         var result = mapper.Map<RegisterResponseDto>(createdUser);
         return result;
     }
 
+    // login a user
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
         var validateUser = await identityRepository.ValidateCredentialsAsync(request.Email, request.Password);
@@ -41,5 +41,12 @@ public class IdentityService(
         result.AccessToken = token;
         result.RefreshToken = refreshToken;
         return result;
+    }
+
+    // change user password
+    public async Task<bool> ChangePasswordAsync(ChangePasswordDto request, string accessToken)
+    {
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        return await identityRepository.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
     }
 }

@@ -42,6 +42,37 @@ internal class JwtTokenService(
         return Convert.ToBase64String(randomNumber);
     }
 
+    // Get User Id from Token
+    public string GetUserIdFromToken(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            throw new ArgumentException("Token is required");
+
+        token = token.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
+
+        var jwtSettings = jwtOptions.Value;
+        var key = Encoding.UTF8.GetBytes(jwtSettings.Key!);
+        var parameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Value.Issuer,
+            ValidAudience = jwtOptions.Value.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+
+        var handler = new JwtSecurityTokenHandler();
+        var principal = handler.ValidateToken(token, parameters, out _);
+        var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            throw new Exception("Invalid token");
+
+        return userId;
+    }
+
     // Get Claims
     private async Task<List<Claim>> GetClaimsAsync(User user)
     {

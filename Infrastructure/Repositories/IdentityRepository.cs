@@ -53,6 +53,16 @@ internal partial class IdentityRepository(UserManager<User> userManager)
         return await userManager.FindByEmailAsync(email);
     }
 
+    public async Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new Exception("User not found");
+
+        var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        return result.Succeeded;
+    }
+
     // Find a user by username
     private static string SanitizeName(string name)
     {
