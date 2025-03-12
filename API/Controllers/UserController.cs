@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,17 @@ namespace API.Controllers;
 [Route("api/user")]
 public class UserController(IUserServices userServices) : Controller
 {
-    [HttpGet]
-    public IActionResult GetUserProfiles()
+    [HttpGet("GetUserProfiles/{userId}")]
+    public async Task<IActionResult> GetUserProfiles(string userId)
     {
-        var result = userServices.GetProfileAsync();
+        var result = await userServices.GetProfileByIdAsync(userId);
+        return Ok(result);
+    }
+
+    [HttpPost("AddUserProfile")]
+    public async Task<IActionResult> AddUserProfile(UserProfileDto userProfileDto)
+    {
+        var result = await userServices.AddProfileAsync(userProfileDto);
         return Ok(result);
     }
 }

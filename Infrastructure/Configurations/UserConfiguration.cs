@@ -17,7 +17,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasMany(u => u.Experiences)
             .WithOne()
             .HasForeignKey(e => e.UserId)
@@ -32,11 +32,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.ToTable("Users").OwnsOne(u => u.Profile, profileBuilder =>
         {
-            profileBuilder.Property(p => p.FirstName).HasMaxLength(50).IsRequired();
-            profileBuilder.Property(p => p.LastName).HasMaxLength(50).IsRequired();
+            profileBuilder.Property(p => p.FirstName).HasMaxLength(50);
+            profileBuilder.Property(p => p.LastName).HasMaxLength(50);
             profileBuilder.Property(p => p.ProfilePicture).HasMaxLength(2000);
             profileBuilder.Property(p => p.Bio).HasMaxLength(2500);
             profileBuilder.Property(p => p.Headline).HasMaxLength(250);

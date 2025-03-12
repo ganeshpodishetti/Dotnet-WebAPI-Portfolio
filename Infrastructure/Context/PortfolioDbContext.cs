@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Context;
 
-internal class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options) 
+internal class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
     : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
 {
     internal DbSet<Education> Educations { get; set; } = null!;
@@ -15,21 +15,18 @@ internal class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
     internal DbSet<Skill> Skills { get; set; } = null!;
     internal DbSet<SocialLink> SocialLinks { get; set; } = null!;
     internal DbSet<Message> Messages { get; set; } = null!;
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-           
+
         // Remove AspNet prefix from tables
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var tableName = entityType.GetTableName();
-            if (tableName!.StartsWith("AspNet"))
-            {
-                entityType.SetTableName(tableName[6..]);
-            }
+            if (tableName!.StartsWith("AspNet")) entityType.SetTableName(tableName[6..]);
         }
     }
 }

@@ -1,40 +1,55 @@
+using API.Extensions;
 using Application.Extensions;
-using Domain.Options;
+using Domain.Entities;
 using Infrastructure.Extension;
+using Scalar.AspNetCore;
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
-
-    // Registering the DbContext
-    builder.Services.Configure<ConnStringOptions>(
-        builder.Configuration.GetSection(ConnStringOptions.ConnectionStrings));
-
+    builder.AddPresentation();
+    builder.Services.AddScalarOpenApi();
     builder.Services.AddDatabase();
     builder.Services.AddInfrastructure();
     builder.Services.AddApplication();
 
-    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddControllers();
-
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment()) app.MapOpenApi();
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.MapScalarApiReference(opt =>
+            opt
+                .WithTitle("Restaurant API")
+                .WithTheme(ScalarTheme.Mars)
+                .WithDarkMode(true)
+                .WithSidebar(true)
+                .WithDefaultHttpClient(ScalarTarget.Http, ScalarClient.Http11)
+                .Authentication = new ScalarAuthenticationOptions
+            {
+                PreferredSecurityScheme = "Bearer"
+            });
+    }
 
     app.UseHttpsRedirection();
 
     app.UseRouting();
 
+    app.MapGroup("api/identity")
+        .WithTags("Identity")
+        .MapIdentityApi<User>();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
     app.MapControllers();
 
     app.Run();
 }
-catch (Exception)
+catch (Exception ex)
 {
     throw new Exception("An error occurred while start-up the application.");
 }
