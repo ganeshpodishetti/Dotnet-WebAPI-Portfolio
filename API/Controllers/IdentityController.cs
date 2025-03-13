@@ -12,6 +12,12 @@ public class IdentityController(IIdentityService identityService) : Controller
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
+        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            return BadRequest("Email or password are required");
+
+        if (string.IsNullOrEmpty(request.UserName))
+            return BadRequest("User name required");
+
         var response = await identityService.RegisterAsync(request);
         return Ok(response);
     }
@@ -19,6 +25,9 @@ public class IdentityController(IIdentityService identityService) : Controller
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
+        // Pre-validate request to fail fast
+        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            return BadRequest("Email and password are required");
         var response = await identityService.LoginAsync(request);
         return Ok(response);
     }
