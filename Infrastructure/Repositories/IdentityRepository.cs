@@ -56,10 +56,9 @@ internal partial class IdentityRepository(UserManager<User> userManager)
         user.UserName = user.UserName.ToLower();
         user.PasswordHash = userManager.PasswordHasher.HashPassword(user, password);
         var result = await userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-            throw new Exception("Failed to create user");
-
-        return user;
+        if (result.Succeeded) return user;
+        var enumerator = result.Errors.First().Description;
+        throw new PasswordViolationException(enumerator);
     }
 
     // Find a user by username
