@@ -42,6 +42,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             RegistrationFailedException => (HttpStatusCode.BadRequest, exception.Message),
             NotFoundException => (HttpStatusCode.NotFound, exception.Message),
             ForbidException => (HttpStatusCode.Forbidden, exception.Message),
+            PasswordViolationException => (HttpStatusCode.BadRequest, exception.Message),
             _ => (HttpStatusCode.InternalServerError, $"An unexpected error occurred: {exception.Message}")
         };
     }

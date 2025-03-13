@@ -20,7 +20,7 @@ public static class JwtAuthenticationExtension
         IConfiguration configuration)
     {
         //Checking JWT key
-        var jwtSettings = configuration.GetSection("JwtConfig").Get<JwtOptions>();
+        var jwtSettings = configuration.GetSection("JwtConfig").Get<JwtTokenOptions>();
         if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
             throw new InvalidOperationException("JWT secret key is not configured.");
 
@@ -49,7 +49,7 @@ public static class JwtAuthenticationExtension
             .AddJwtBearer("Bearer", options =>
             {
                 options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
+                //options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

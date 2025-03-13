@@ -14,8 +14,8 @@ public static class WebApplicationBuilderExtension
         // Registering the DbContext
         builder.Services.Configure<ConnStringOptions>(
             builder.Configuration.GetSection(ConnStringOptions.ConnectionStrings));
-        builder.Services.Configure<JwtOptions>(
-            builder.Configuration.GetSection(JwtOptions.JwtConfig));
+        builder.Services.Configure<JwtTokenOptions>(
+            builder.Configuration.GetSection(JwtTokenOptions.JwtConfig));
 
         // Registering the services
         builder.Services.AddControllers();

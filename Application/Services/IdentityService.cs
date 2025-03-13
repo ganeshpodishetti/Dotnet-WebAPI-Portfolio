@@ -4,12 +4,15 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Interfaces;
+using Domain.Options;
+using Microsoft.Extensions.Options;
 
 namespace Application.Services;
 
 public class IdentityService(
     IIdentityRepository identityRepository,
     IJwtTokenService jwtTokenService,
+    IOptions<JwtTokenOptions> jwtOptions,
     IMapper mapper) : IIdentityService
 {
     // register a new user
@@ -40,6 +43,10 @@ public class IdentityService(
         var result = mapper.Map<LoginResponseDto>(user);
         result.AccessToken = token;
         result.RefreshToken = refreshToken;
+        result.RefreshTokenExpirationAtUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays)
+            .ToString("yyyy-MM-dd HH:mm:ss tt");
+        result.AccessTokenExpirationAtUtc = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes)
+            .ToString("yyyy-MM-dd HH:mm:ss tt");
         return result;
     }
 

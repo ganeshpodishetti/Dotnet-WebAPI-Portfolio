@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Infrastructure.Services;
 
 internal class JwtTokenService(
-    IOptions<JwtOptions> jwtOptions,
+    IOptions<JwtTokenOptions> jwtOptions,
     UserManager<User> userManager) : IJwtTokenService
 {
     // Generate JWT Token
@@ -50,25 +50,13 @@ internal class JwtTokenService(
 
         token = token.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
 
-        var jwtSettings = jwtOptions.Value;
-        var key = Encoding.UTF8.GetBytes(jwtSettings.Key!);
-        var parameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtOptions.Value.Issuer,
-            ValidAudience = jwtOptions.Value.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(key)
-        };
-
         var handler = new JwtSecurityTokenHandler();
-        var principal = handler.ValidateToken(token, parameters, out _);
+        var validationParameters = GetValidationParameters();
+        var principal = handler.ValidateToken(token, validationParameters, out _);
         var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userId))
-            throw new Exception("Invalid token");
+            throw new UnauthorizedAccessException("Invalid token");
 
         return userId;
     }
@@ -78,14 +66,15 @@ internal class JwtTokenService(
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user?.UserName ?? string.Empty),
-            new(ClaimTypes.NameIdentifier, user?.Id.ToString() ?? string.Empty),
-            new(ClaimTypes.Email, user?.Email ?? string.Empty),
-            new("FirstName", user?.Profile.FirstName ?? string.Empty),
-            new("LastName", user?.Profile.LastName ?? string.Empty)
+            new(ClaimTypes.Name, user.UserName!),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("FirstName", user.Profile.FirstName ?? string.Empty),
+            new("LastName", user.Profile.LastName ?? string.Empty)
         };
 
-        var roles = await userManager.GetRolesAsync(user!);
+        var roles = await userManager.GetRolesAsync(user);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         return claims;
@@ -98,8 +87,25 @@ internal class JwtTokenService(
             jwtOptions.Value.Issuer,
             jwtOptions.Value.Audience,
             claims,
-            expires: DateTime.UtcNow.AddMinutes(jwtOptions.Value.ExpiryInMinutes),
+            expires: DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes),
             signingCredentials: signingCredentials
         );
+    }
+
+    // Get Validation Parameters
+    private TokenValidationParameters GetValidationParameters()
+    {
+        return new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtOptions.Value.Key!)),
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Value.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtOptions.Value.Audience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
     }
 }
