@@ -2,6 +2,7 @@ using Application.DTOs.Identity;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Interfaces;
 
 namespace Application.Services;
@@ -14,13 +15,12 @@ public class IdentityService(
     // register a new user
     public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request)
     {
-        var email = request.Email ?? throw new Exception("Email is required");
-        var existingUser = await identityRepository.FindByEmailAsync(email);
-        if (existingUser != null) throw new Exception("User already exists");
+        var existingUser = await identityRepository.FindByEmailAsync(request.Email);
+        if (existingUser != null) throw new UserAlreadyExistsException(request.Email, true);
 
         var user = mapper.Map<User>(request);
 
-        var createdUser = await identityRepository.CreateUserAsync(user, request.Password);
+        var createdUser = await identityRepository.RegisterUserAsync(user, request.Password);
 
         var result = mapper.Map<RegisterResponseDto>(createdUser);
         return result;
@@ -31,7 +31,7 @@ public class IdentityService(
     {
         var validateUser = await identityRepository.ValidateCredentialsAsync(request.Email, request.Password);
         if (!validateUser)
-            throw new Exception("Invalid credentials");
+            throw new LoginFailedException(request.Email);
 
         var user = await identityRepository.FindByEmailAsync(request.Email);
         var token = await jwtTokenService.GenerateJwtToken(user!);
@@ -47,6 +47,7 @@ public class IdentityService(
     public async Task<bool> ChangePasswordAsync(ChangePasswordDto request, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        return await identityRepository.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
+        var user = await identityRepository.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
+        return user;
     }
 }

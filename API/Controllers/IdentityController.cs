@@ -28,7 +28,9 @@ public class IdentityController(IIdentityService identityService) : Controller
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request,
         [FromHeader] string authorization)
     {
-        var result = await identityService.ChangePasswordAsync(request, authorization);
-        return Ok(result);
+        var user = await identityService.ChangePasswordAsync(request, authorization);
+        if (user)
+            return Ok("Password changed successfully");
+        return BadRequest("Failed to change password. Please try again.");
     }
 }

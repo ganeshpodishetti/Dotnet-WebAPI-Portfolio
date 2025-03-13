@@ -35,6 +35,8 @@ try
             });
     }
 
+    app.UseStatusCodePages();
+    app.UseExceptionHandler(_ => { });
     app.UseHttpsRedirection();
     app.UseRouting();
     app.UseAuthentication();
