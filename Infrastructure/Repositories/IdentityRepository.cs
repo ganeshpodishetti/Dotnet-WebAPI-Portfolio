@@ -1,36 +1,15 @@
 using System.Text.RegularExpressions;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using NotFoundException = Domain.Exceptions.NotFoundException;
 
 namespace Infrastructure.Repositories;
 
 internal partial class IdentityRepository(UserManager<User> userManager)
     : IIdentityRepository
 {
-    // register a new user
-    public async Task<User> CreateUserAsync(User user, string password)
-    {
-        if (string.IsNullOrEmpty(user.UserName))
-            throw new ArgumentException("Username is required");
-
-        // Check for special characters and spaces
-        if (user.UserName != SanitizeName(user.UserName))
-            throw new ArgumentException("Username cannot contain special characters or spaces");
-
-        // Check if username is unique
-        if (await userManager.FindByNameAsync(user.UserName) != null)
-            throw new Exception("Username is already taken");
-
-        user.UserName = user.UserName.ToLower();
-        user.PasswordHash = userManager.PasswordHasher.HashPassword(user, password);
-        var result = await userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-            throw new Exception("Failed to create user");
-
-        return user;
-    }
-
     // login a user
     public async Task<User> UpdateUserAsync(User user)
     {
@@ -57,10 +36,30 @@ internal partial class IdentityRepository(UserManager<User> userManager)
     {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null)
-            throw new Exception("User not found");
+            throw new NotFoundException(nameof(User), userId);
 
         var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
         return result.Succeeded;
+    }
+
+    // register a new user
+    public async Task<User> RegisterUserAsync(User user, string password)
+    {
+        // Check for special characters and spaces
+        if (user.UserName != SanitizeName(user.UserName!))
+            throw new ArgumentException("Username cannot contain special characters or spaces");
+
+        // Check if username exists
+        if (await userManager.FindByNameAsync(user.UserName) != null)
+            throw new UserAlreadyExistsException(user.UserName);
+
+        user.UserName = user.UserName.ToLower();
+        user.PasswordHash = userManager.PasswordHasher.HashPassword(user, password);
+        var result = await userManager.CreateAsync(user, password);
+        if (!result.Succeeded)
+            throw new Exception("Failed to create user");
+
+        return user;
     }
 
     // Find a user by username
