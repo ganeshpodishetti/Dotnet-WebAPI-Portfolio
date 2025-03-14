@@ -5,6 +5,6 @@ namespace Domain.UnitOfWork;
 public interface IUnitOfWork
 {
     IUserRepository UserRepository { get; }
-    Task CommitAsync();
+    Task CommitAsync(CancellationToken cancellationToken = default);
     Task RollbackAsync();
 }

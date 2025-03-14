@@ -1,3 +1,4 @@
+using API.Helpers;
 using Application.DTOs.Identity;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -7,8 +8,12 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/identity")]
-public class IdentityController(IIdentityService identityService) : Controller
+public class IdentityController(
+    IIdentityService identityService,
+    IAccessTokenHelper accessTokenHelper) : Controller
 {
+    private string AccessToken => accessTokenHelper.GetAccessToken();
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
@@ -34,12 +39,21 @@ public class IdentityController(IIdentityService identityService) : Controller
 
     [HttpPost("change-password")]
     [Authorize]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request,
-        [FromHeader] string authorization)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
     {
-        var user = await identityService.ChangePasswordAsync(request, authorization);
+        var user = await identityService.ChangePasswordAsync(request, AccessToken);
         if (user)
             return Ok("Password changed successfully");
         return BadRequest("Failed to change password. Please try again.");
+    }
+
+    [HttpDelete("delete-user")]
+    [Authorize]
+    public async Task<IActionResult> DeleteUser()
+    {
+        var user = await identityService.DeleteUserAsync(AccessToken);
+        if (user)
+            return Ok("User deleted successfully");
+        return BadRequest("Failed to delete user. Please try again.");
     }
 }
