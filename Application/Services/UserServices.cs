@@ -1,40 +1,65 @@
-using Application.DTOs;
+using Application.DTOs.User;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Exceptions;
+using Domain.Interfaces;
 using Domain.UnitOfWork;
 
 namespace Application.Services;
 
-public class UserServices(IUnitOfWork unitOfWork, IMapper mapper)
+public class UserServices(IUnitOfWork unitOfWork, IMapper mapper, IJwtTokenService jwtTokenService)
     : IUserServices
 {
-    public async Task<UserProfileDto?> GetProfileByIdAsync(string userId)
+    // Get user profile by ID
+    public async Task<UserProfileDto?> GetProfileByIdAsync(string accessToken)
     {
-        if (!Guid.TryParse(userId, out var id))
-            throw new ArgumentException("Invalid user ID format", nameof(userId));
-
-        var user = await unitOfWork.UserRepository.GetByIdAsync(id);
+        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
+        if (!Guid.TryParse(userIdString, out var userId))
+            throw new InvalidOperationException("Invalid user ID format");
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (user == null) return null;
         var result = mapper.Map<UserProfileDto>(user);
         return result;
     }
 
-    public async Task<bool> UpdateProfileAsync(string userId, UserProfileDto userProfileDto)
+    // Update user profile
+    public async Task<bool> UpdateProfileAsync(UserProfileDto userProfileDto, string accessToken)
     {
-        throw new NotImplementedException();
+        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
+        if (!Guid.TryParse(userIdString, out var userId))
+            throw new InvalidOperationException("Invalid user ID format");
+
+        var toUpdate = await unitOfWork.UserRepository.GetByIdAsync(userId);
+        if (toUpdate is null) return false;
+
+        // Update existing entity instead of creating new
+        return await UpdateExistingUserProfile(toUpdate, userProfileDto);
     }
 
-    public async Task<bool> DeleteProfileAsync(string userId)
+    // Add new profile or update existing one
+    public async Task<bool> AddProfileAsync(UserProfileDto userProfileDto, string accessToken)
     {
-        throw new NotImplementedException();
+        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
+        if (!Guid.TryParse(userIdString, out var userId))
+            throw new InvalidOperationException("Invalid user ID format");
+
+        var toAdd = await unitOfWork.UserRepository.GetByIdAsync(userId);
+
+        if (toAdd is null)
+            throw new NotFoundException(nameof(toAdd), userId.ToString());
+
+        return await UpdateExistingUserProfile(toAdd, userProfileDto);
     }
 
-    public async Task<bool> AddProfileAsync(UserProfileDto userProfileDto)
+    // Update existing user profile
+    private async Task<bool> UpdateExistingUserProfile(User user, UserProfileDto userProfileDto)
     {
-        var user = mapper.Map<User>(userProfileDto);
-        await unitOfWork.UserRepository.AddAsync(user);
+        user.UpdatedAt = DateTime.UtcNow;
+
+        mapper.Map(userProfileDto, user.Profile);
+        var result = await unitOfWork.UserRepository.UpdateAsync(user);
         await unitOfWork.CommitAsync();
-        return true;
+        return result;
     }
 }

@@ -1,26 +1,41 @@
-using Application.DTOs;
+using API.Helpers;
+using Application.DTOs.User;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/user")]
-public class UserController(IUserServices userServices) : Controller
+[Authorize]
+public class UserController(
+    IUserServices userServices,
+    IAccessTokenHelper accessTokenHelper) : Controller
 {
+    private string AccessToken => accessTokenHelper.GetAccessToken();
+
     // GET: api/user/GetUserProfiles/id
-    [HttpGet("GetUserProfiles/{userId}")]
-    public async Task<IActionResult> GetUserProfiles(string userId)
+    [HttpGet("GetProfileById")]
+    public async Task<IActionResult> GetProfileById()
     {
-        var result = await userServices.GetProfileByIdAsync(userId);
+        var result = await userServices.GetProfileByIdAsync(AccessToken);
         return Ok(result);
     }
 
     // POST: api/user/AddUserProfile
     [HttpPost("AddUserProfile")]
-    public async Task<IActionResult> AddUserProfile(UserProfileDto userProfileDto)
+    public async Task<IActionResult> AddUserProfile([FromBody] UserProfileDto userProfileDto)
     {
-        var result = await userServices.AddProfileAsync(userProfileDto);
+        var result = await userServices.AddProfileAsync(userProfileDto, AccessToken);
+        return Ok(result);
+    }
+
+    // PUT: api/user/UpdateUserProfile
+    [HttpPatch("UpdateUserProfile")]
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileDto userProfileDto)
+    {
+        var result = await userServices.UpdateProfileAsync(userProfileDto, AccessToken);
         return Ok(result);
     }
 }

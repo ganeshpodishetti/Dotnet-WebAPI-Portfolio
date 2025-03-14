@@ -1,11 +1,14 @@
-using Application.DTOs;
+using Application.DTOs.User;
 
 namespace Application.Interfaces;
 
 public interface IUserServices
 {
-    Task<UserProfileDto?> GetProfileByIdAsync(string userId);
-    Task<bool> UpdateProfileAsync(string userId, UserProfileDto userProfileDto);
-    Task<bool> DeleteProfileAsync(string userId);
-    Task<bool> AddProfileAsync(UserProfileDto userProfileDto);
+    //Task<IEnumerable<UserProfileDto>> GetUserProfilesAsync(CancellationToken cancellationToken = default);
+    Task<UserProfileDto?> GetProfileByIdAsync(string accessToken);
+
+    Task<bool> UpdateProfileAsync(UserProfileDto userProfileDto, string accessToken);
+
+    //Task<bool> DeleteProfileAsync(string accessToken);
+    Task<bool> AddProfileAsync(UserProfileDto userProfileDto, string accessToken);
 }

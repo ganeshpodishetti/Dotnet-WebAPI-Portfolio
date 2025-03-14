@@ -61,6 +61,16 @@ internal partial class IdentityRepository(UserManager<User> userManager)
         throw new PasswordViolationException(enumerator);
     }
 
+    // Delete a user
+    public async Task<bool> DeleteUserAsync(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new NotFoundException(nameof(User), userId);
+        var result = await userManager.DeleteAsync(user);
+        return result.Succeeded;
+    }
+
     // Find a user by username
     private static string SanitizeName(string name)
     {

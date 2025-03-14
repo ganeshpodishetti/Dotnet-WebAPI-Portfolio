@@ -1,4 +1,4 @@
-namespace Application.DTOs;
+namespace Application.DTOs.User;
 
 public record UserProfileDto
 {
@@ -9,5 +9,4 @@ public record UserProfileDto
     public string Headline { get; set; } = null!;
     public string Country { get; set; } = null!;
     public string City { get; set; } = null!;
-    public string UpdatedAt { get; set; } = null!;
 }

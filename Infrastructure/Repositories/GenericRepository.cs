@@ -34,10 +34,9 @@ internal abstract class GenericRepository<T>(PortfolioDbContext context)
     }
 
     // Delete an entity
-    public async Task<bool> DeleteAsync(object id)
+    public Task<bool> DeleteAsync(T entity)
     {
-        var entity = await context.Set<T>().FindAsync(id);
-        if (entity != null) context.Set<T>().Remove(entity);
-        return true;
+        context.Set<T>().Remove(entity);
+        return Task.FromResult(true);
     }
 }

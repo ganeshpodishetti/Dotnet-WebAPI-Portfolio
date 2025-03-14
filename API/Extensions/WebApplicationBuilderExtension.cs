@@ -1,4 +1,5 @@
 using API.Handlers;
+using API.Helpers;
 using Domain.Options;
 
 namespace API.Extensions;
@@ -21,5 +22,8 @@ public static class WebApplicationBuilderExtension
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHttpContextAccessor();
+
+        // Registering the Services
+        builder.Services.AddScoped<IAccessTokenHelper, AccessTokenHelper>();
     }
 }

@@ -57,4 +57,12 @@ public class IdentityService(
         var user = await identityRepository.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
         return user;
     }
+
+    // delete a user
+    public async Task<bool> DeleteUserAsync(string accessToken)
+    {
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var user = await identityRepository.DeleteUserAsync(userId);
+        return user;
+    }
 }
