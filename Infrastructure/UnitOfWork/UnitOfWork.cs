@@ -8,6 +8,7 @@ namespace Infrastructure.UnitOfWork;
 internal sealed class UnitOfWork(PortfolioDbContext context) : IUnitOfWork
 {
     public IUserRepository UserRepository { get; } = new UserRepository(context);
+    public IEducationRepository EducationRepository { get; } = new EducationRepository(context);
 
     public async Task CommitAsync(CancellationToken cancellationToken = default)
     {

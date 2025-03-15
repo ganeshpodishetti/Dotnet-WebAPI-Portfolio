@@ -4,10 +4,10 @@ namespace Domain.Entities;
 
 public class Project : BaseEntity
 {
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public string Url { get; set; } = null!;
-    public string GithubUrl { get; set; } = null!;
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+    public string? Url { get; set; }
+    public string? GithubUrl { get; set; }
 
     public Guid UserId { get; set; }
 

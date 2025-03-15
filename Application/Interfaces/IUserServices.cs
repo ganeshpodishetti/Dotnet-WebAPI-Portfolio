@@ -4,7 +4,6 @@ namespace Application.Interfaces;
 
 public interface IUserServices
 {
-    //Task<IEnumerable<UserProfileDto>> GetUserProfilesAsync(CancellationToken cancellationToken = default);
     Task<UserProfileDto?> GetProfileByIdAsync(string accessToken);
 
     Task<bool> UpdateProfileAsync(UserProfileDto userProfileDto, string accessToken);
