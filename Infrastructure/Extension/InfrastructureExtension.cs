@@ -16,6 +16,7 @@ public static class InfrastructureExtension
         // Registering the Repositories
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IIdentityRepository, IdentityRepository>();
+        services.AddTransient<IEducationRepository, EducationRepository>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
