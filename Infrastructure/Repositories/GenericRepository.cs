@@ -14,16 +14,12 @@ internal abstract class GenericRepository<T>(PortfolioDbContext context)
         return true;
     }
 
-    public async Task<T?> GetByIdAsync(object id)
-    {
-        var entity = await context.Set<T>().FindAsync(id);
-        return entity;
-    }
-
     // Get all entities
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Set<T>().ToListAsync(cancellationToken);
+        return await context.Set<T>()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     // Update an existing entity
@@ -38,5 +34,13 @@ internal abstract class GenericRepository<T>(PortfolioDbContext context)
     {
         context.Set<T>().Remove(entity);
         return Task.FromResult(true);
+    }
+
+    public async Task<T?> GetByIdAsync(object id)
+    {
+        return await context.Set<T>()
+            // FindAsync for primary key lookups
+            .FindAsync(id)
+            .AsTask();
     }
 }

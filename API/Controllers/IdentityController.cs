@@ -37,7 +37,7 @@ public class IdentityController(
         return Ok(response);
     }
 
-    [HttpPost("change-password")]
+    [HttpPost("changePassword")]
     [Authorize]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
     {
@@ -47,7 +47,7 @@ public class IdentityController(
         return BadRequest("Failed to change password. Please try again.");
     }
 
-    [HttpDelete("delete-user")]
+    [HttpDelete("deleteUser")]
     [Authorize]
     public async Task<IActionResult> DeleteUser()
     {

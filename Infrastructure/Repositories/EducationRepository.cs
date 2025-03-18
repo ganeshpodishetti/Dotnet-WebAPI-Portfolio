@@ -13,6 +13,15 @@ internal class EducationRepository(PortfolioDbContext context)
     public async Task<Education?> GetByUserIdAsync(Guid userId)
     {
         return await _context.Educations
-            .FirstAsync(e => e.UserId == userId);
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.UserId == userId);
+    }
+
+    public async Task<List<Education>?> GetAllByUserIdAsync(Guid userId)
+    {
+        return await _context.Educations
+            .Where(e => e.UserId == userId)
+            .AsNoTracking()
+            .ToListAsync();
     }
 }

@@ -19,30 +19,27 @@ public class EducationController(
     public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto educationDto)
     {
         var result = await educationService.AddEducationAsync(educationDto, AccessToken);
-        if (result is false) return BadRequest("Failed to add education");
-        return Ok("Education added successfully");
+        return Ok(result);
     }
 
     [HttpPatch("updateEducation")]
     public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto educationDto)
     {
         var result = await educationService.UpdateEducationAsync(educationDto, AccessToken);
-        if (result is false) return BadRequest("Failed to update education");
-        return Ok("Education updated successfully");
+        return Ok(result);
     }
 
     [HttpDelete("deleteEducation")]
     public async Task<IActionResult> DeleteEducationAsync()
     {
         var result = await educationService.DeleteEducationAsync(AccessToken);
-        if (result is false) return BadRequest("Failed to delete education");
-        return Ok("Education deleted successfully");
+        return Ok(result);
     }
 
     [HttpGet("getEducationById")]
     public async Task<IActionResult> GetEducationByIdAsync()
     {
-        var result = await educationService.GetEducationByIdAsync(AccessToken);
+        var result = await educationService.GetEducationsByIdAsync(AccessToken);
         return Ok(result);
     }
 }

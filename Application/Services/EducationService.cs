@@ -59,13 +59,15 @@ public class EducationService(
         return result;
     }
 
-    public async Task<EducationResponseDto?> GetEducationByIdAsync(string accessToken)
+    public async Task<List<EducationResponseDto>> GetEducationsByIdAsync(string accessToken)
     {
-        var education = await GetEducationByUserId(accessToken);
-        if (education is null)
-            throw new Exception("User does not exist to get education.");
+        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
+        if (!Guid.TryParse(userIdString, out var userId))
+            throw new InvalidOperationException("Invalid user ID format");
 
-        var result = mapper.Map<EducationResponseDto>(education);
+        var educations = await unitOfWork.EducationRepository.GetAllByUserIdAsync(userId);
+
+        var result = mapper.Map<List<EducationResponseDto>>(educations);
         return result;
     }
 

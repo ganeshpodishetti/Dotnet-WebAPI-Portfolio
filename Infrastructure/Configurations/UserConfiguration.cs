@@ -33,7 +33,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.ToTable("Users").OwnsOne(u => u.Profile, profileBuilder =>
+        builder.ToTable("Users").OwnsOne(u => u.AboutMe, profileBuilder =>
         {
             profileBuilder.Property(p => p.FirstName).HasMaxLength(50);
             profileBuilder.Property(p => p.LastName).HasMaxLength(50);

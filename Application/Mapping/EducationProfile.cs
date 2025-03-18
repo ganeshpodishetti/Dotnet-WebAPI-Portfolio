@@ -9,18 +9,12 @@ public class EducationProfile : Profile
     public EducationProfile()
     {
         // Domain to Dtos
-        CreateMap<Education, EducationResponseDto>();
+        CreateMap<Education, EducationResponseDto>()
+            .ForMember(dest => dest.UpdatedAtUtc, opt =>
+                opt.MapFrom(src => src.UpdatedAt.ToString()));
 
         // Dtos to Domain
         CreateMap<EducationRequestDto, Education>()
-            .ForMember(dest => dest.Id, opt => opt
-                .Ignore())
-            .ForMember(dest => dest.UserId, opt => opt
-                .Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt
-                .Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt
-                .Ignore())
             .ForMember(dest => dest.StartDate, opt => opt
                 .MapFrom(src => DateOnly.ParseExact(src.StartDate, "yyyy-MM-dd")))
             .ForMember(dest => dest.EndDate, opt => opt

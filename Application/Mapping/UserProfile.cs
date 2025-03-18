@@ -1,7 +1,7 @@
 using Application.DTOs.Identity;
 using Application.DTOs.User;
+using AutoMapper;
 using Domain.Entities;
-using Profile = AutoMapper.Profile;
 
 namespace Application.Mapping;
 
@@ -12,19 +12,19 @@ public class UserProfile : Profile
         // Domain to Dtos
         CreateMap<User, UserProfileDto>()
             .ForMember(dest => dest.FirstName, opt =>
-                opt.MapFrom(src => src.Profile.FirstName))
+                opt.MapFrom(src => src.AboutMe.FirstName))
             .ForMember(dest => dest.LastName, opt =>
-                opt.MapFrom(src => src.Profile.LastName))
+                opt.MapFrom(src => src.AboutMe.LastName))
             .ForMember(dest => dest.ProfilePicture, opt =>
-                opt.MapFrom(src => src.Profile.ProfilePicture))
+                opt.MapFrom(src => src.AboutMe.ProfilePicture))
             .ForMember(dest => dest.Bio, opt =>
-                opt.MapFrom(src => src.Profile.Bio))
+                opt.MapFrom(src => src.AboutMe.Bio))
             .ForMember(dest => dest.Headline, opt =>
-                opt.MapFrom(src => src.Profile.Headline))
+                opt.MapFrom(src => src.AboutMe.Headline))
             .ForMember(dest => dest.Country, opt =>
-                opt.MapFrom(src => src.Profile.Country))
+                opt.MapFrom(src => src.AboutMe.Country))
             .ForMember(dest => dest.City, opt =>
-                opt.MapFrom(src => src.Profile.City));
+                opt.MapFrom(src => src.AboutMe.City));
         CreateMap<User, LoginResponseDto>();
         CreateMap<User, RegisterResponseDto>()
             .ForMember(dest => dest.CreateAt, opt =>
@@ -37,12 +37,7 @@ public class UserProfile : Profile
                 opt.MapFrom(src => src.UserName));
         CreateMap<UserProfileDto, User>();
 
-        // CreateMap<UserProfileDto, User>()
-        //     .ForMember(d => d.Id, o => o.Ignore())
-        //     .ForMember(d => d.CreatedAt, o => o.Ignore())
-        //     .ForMember(d => d.UpdatedAt, o => o.Ignore());
-
         // Reverse mapping
-        CreateMap<Domain.Entities.Profile, UserProfileDto>().ReverseMap();
+        CreateMap<AboutMe, UserProfileDto>().ReverseMap();
     }
 }

@@ -11,5 +11,5 @@ public class Project : BaseEntity
 
     public Guid UserId { get; set; }
 
-    public virtual ICollection<Skill> Skills { get; set; } = [];
+    public List<string>? Skills { get; set; } = [];
 }
