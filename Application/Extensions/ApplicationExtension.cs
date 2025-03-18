@@ -15,7 +15,7 @@ public static class ApplicationExtension
 
         // Registering the UserServices
         services.AddScoped<IUserServices, UserServices>();
-        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IEducationService, EducationService>();
         services.AddScoped<IExperienceService, ExperienceService>();
         services.AddScoped<IProjectService, ProjectService>();

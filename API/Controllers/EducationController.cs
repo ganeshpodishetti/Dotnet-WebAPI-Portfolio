@@ -30,7 +30,7 @@ public class EducationController(
     }
 
     [HttpDelete("deleteEducation")]
-    public async Task<IActionResult> DeleteEducationAsync()
+    public async Task<IActionResult> DeleteEducationAsync(string schoolName)
     {
         var result = await educationService.DeleteEducationAsync(AccessToken);
         return Ok(result);

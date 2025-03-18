@@ -1,4 +1,4 @@
-using Application.DTOs.Identity;
+using Application.DTOs.Authentication;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -9,11 +9,11 @@ using Microsoft.Extensions.Options;
 
 namespace Application.Services;
 
-public class IdentityService(
+public class AuthenticationService(
     IIdentityRepository identityRepository,
     IJwtTokenService jwtTokenService,
     IOptions<JwtTokenOptions> jwtOptions,
-    IMapper mapper) : IIdentityService
+    IMapper mapper) : IAuthenticationService
 {
     // register a new user
     public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request)
