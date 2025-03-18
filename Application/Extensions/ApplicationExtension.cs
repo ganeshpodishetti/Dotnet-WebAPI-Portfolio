@@ -17,6 +17,11 @@ public static class ApplicationExtension
         services.AddScoped<IUserServices, UserServices>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IEducationService, EducationService>();
+        services.AddScoped<IExperienceService, ExperienceService>();
+        services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<ISkillService, SkillService>();
+        services.AddScoped<IMessageService, MessageService>();
+        services.AddScoped<ISocialLinkService, SocialLinkService>();
 
         return services;
     }

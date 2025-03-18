@@ -60,7 +60,7 @@ public class UserServices(IUnitOfWork unitOfWork, IMapper mapper, IJwtTokenServi
     {
         user.UpdatedAt = DateTime.UtcNow;
 
-        mapper.Map(userProfileDto, user.Profile);
+        mapper.Map(userProfileDto, user.AboutMe);
         var result = await unitOfWork.UserRepository.UpdateAsync(user);
         await unitOfWork.CommitAsync();
         return result;

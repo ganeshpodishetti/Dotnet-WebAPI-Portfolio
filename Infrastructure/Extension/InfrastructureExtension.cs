@@ -11,12 +11,17 @@ public static class InfrastructureExtension
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         // Registering the UnitOfWork
-        services.AddTransient<IUnitOfWork, UnitOfWork.UnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
 
         // Registering the Repositories
-        services.AddTransient<IUserRepository, UserRepository>();
-        services.AddTransient<IIdentityRepository, IdentityRepository>();
-        services.AddTransient<IEducationRepository, EducationRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddScoped<IEducationRepository, EducationRepository>();
+        services.AddScoped<IExperienceRepository, ExperienceRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<ISkillRepository, SkillRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<ISocialLinkRepository, SocialLinkRepository>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
