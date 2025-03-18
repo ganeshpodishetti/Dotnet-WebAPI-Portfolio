@@ -12,22 +12,20 @@ public class ExperienceService(
     IMapper mapper,
     IJwtTokenService jwtTokenService) : IExperienceService
 {
+    // get experiences
     public async Task<List<ExperienceResponseDto>> GetExperiencesByUserIdAsync(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var experiences = await unitOfWork.ExperienceRepository.GetAllByUserIdAsync(userId);
         var result = mapper.Map<List<ExperienceResponseDto>>(experiences);
         return result;
     }
 
+    // add experiences
     public async Task<bool> AddExperienceAsync(ExperienceRequestDto experienceRequestDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
@@ -35,7 +33,6 @@ public class ExperienceService(
 
         var experience = mapper.Map<Experience>(experienceRequestDto);
         experience.UserId = existingUser.Id;
-        experience.CreatedAt = DateTime.UtcNow;
         experience.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.ExperienceRepository.AddAsync(experience);
@@ -43,9 +40,12 @@ public class ExperienceService(
         return result;
     }
 
+    // update experiences
     public async Task<bool> UpdateExperienceAsync(ExperienceRequestDto experienceRequestDto, string accessToken)
     {
-        var existingExperience = await GetExperienceByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+
+        var existingExperience = await unitOfWork.ExperienceRepository.GetByUserIdAsync(userId);
         if (existingExperience is null)
             throw new Exception("User does not exist to update experience.");
 
@@ -58,23 +58,17 @@ public class ExperienceService(
         return result;
     }
 
+    // delete experiences
     public async Task<bool> DeleteExperienceAsync(string accessToken)
     {
-        var existingExperience = await GetExperienceByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+
+        var existingExperience = await unitOfWork.ExperienceRepository.GetByUserIdAsync(userId);
         if (existingExperience is null)
             throw new Exception("User does not exist to delete experience.");
 
         var result = await unitOfWork.ExperienceRepository.DeleteAsync(existingExperience);
         await unitOfWork.CommitAsync();
         return result;
-    }
-
-    private async Task<Experience?> GetExperienceByUserId(string accessToken)
-    {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
-
-        return await unitOfWork.ExperienceRepository.GetByUserIdAsync(userId);
     }
 }

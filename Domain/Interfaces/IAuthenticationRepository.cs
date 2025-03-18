@@ -2,7 +2,7 @@ using Domain.Entities;
 
 namespace Domain.Interfaces;
 
-public interface IIdentityRepository
+public interface IAuthenticationRepository
 {
     Task<User> RegisterUserAsync(User request, string password);
     Task<User> UpdateUserAsync(User user);

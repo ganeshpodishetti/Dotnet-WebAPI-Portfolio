@@ -7,8 +7,8 @@ using NotFoundException = Domain.Exceptions.NotFoundException;
 
 namespace Infrastructure.Repositories;
 
-internal partial class IdentityRepository(UserManager<User> userManager)
-    : IIdentityRepository
+internal partial class AuthenticationRepository(UserManager<User> userManager)
+    : IAuthenticationRepository
 {
     // login a user
     public async Task<User> UpdateUserAsync(User user)

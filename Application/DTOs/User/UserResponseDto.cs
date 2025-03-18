@@ -1,5 +1,6 @@
 using Application.DTOs.Education;
 using Application.DTOs.Experience;
+using Application.DTOs.Message;
 using Application.DTOs.Project;
 using Application.DTOs.Skill;
 using Application.DTOs.SocialLink;
@@ -22,4 +23,5 @@ public record UserResponseDto
     public IEnumerable<SkillResponseDto>? Skills { get; set; }
     public IEnumerable<ProjectResponseDto>? Projects { get; set; }
     public IEnumerable<SocialLinkResponseDto>? SocialLinks { get; set; }
+    public IEnumerable<MessageResponseDto>? Messages { get; set; }
 }

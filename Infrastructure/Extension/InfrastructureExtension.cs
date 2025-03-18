@@ -15,7 +15,7 @@ public static class InfrastructureExtension
 
         // Registering the Repositories
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
         services.AddScoped<IEducationRepository, EducationRepository>();
         services.AddScoped<IExperienceRepository, ExperienceRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();

@@ -2,6 +2,7 @@ namespace Application.DTOs.Experience;
 
 public record ExperienceResponseDto
 {
+    public Guid? Id { get; set; }
     public string? Title { get; set; }
     public string? CompanyName { get; set; }
     public string? Location { get; set; }
