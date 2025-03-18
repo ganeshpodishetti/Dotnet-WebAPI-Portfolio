@@ -1,6 +1,6 @@
 namespace Application.DTOs.User;
 
-public record UserProfileDto
+public record UserRequestDto
 {
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;

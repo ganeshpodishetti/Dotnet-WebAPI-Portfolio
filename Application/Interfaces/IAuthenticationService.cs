@@ -1,8 +1,8 @@
-using Application.DTOs.Identity;
+using Application.DTOs.Authentication;
 
 namespace Application.Interfaces;
 
-public interface IIdentityService
+public interface IAuthenticationService
 {
     Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request);
     Task<LoginResponseDto> LoginAsync(LoginRequestDto request);

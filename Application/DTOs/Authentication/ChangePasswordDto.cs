@@ -1,4 +1,4 @@
-namespace Application.DTOs.Identity;
+namespace Application.DTOs.Authentication;
 
 public record ChangePasswordDto
 {

@@ -26,7 +26,7 @@ public static class JwtAuthenticationExtension
 
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
 
-        // Registering the Identity Services
+        // Registering the Authentication Services
         services.AddIdentity<User, IdentityRole<Guid>>(options =>
             {
                 options.Password.RequireNonAlphanumeric = false;

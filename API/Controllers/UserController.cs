@@ -25,17 +25,17 @@ public class UserController(
 
     // POST: api/user/AddUserProfile
     [HttpPost("AddUserProfile")]
-    public async Task<IActionResult> AddUserProfile([FromBody] UserProfileDto userProfileDto)
+    public async Task<IActionResult> AddUserProfile([FromBody] UserRequestDto userRequestDto)
     {
-        var result = await userServices.AddProfileAsync(userProfileDto, AccessToken);
+        var result = await userServices.AddProfileAsync(userRequestDto, AccessToken);
         return Ok(result);
     }
 
     // PUT: api/user/UpdateUserProfile
     [HttpPatch("UpdateUserProfile")]
-    public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileDto userProfileDto)
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto userRequestDto)
     {
-        var result = await userServices.UpdateProfileAsync(userProfileDto, AccessToken);
+        var result = await userServices.UpdateProfileAsync(userRequestDto, AccessToken);
         return Ok(result);
     }
 }

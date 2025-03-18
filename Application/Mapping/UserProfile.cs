@@ -1,4 +1,4 @@
-using Application.DTOs.Identity;
+using Application.DTOs.Authentication;
 using Application.DTOs.User;
 using AutoMapper;
 using Domain.Entities;
@@ -10,7 +10,7 @@ public class UserProfile : Profile
     public UserProfile()
     {
         // Domain to Dtos
-        CreateMap<User, UserProfileDto>()
+        CreateMap<User, UserResponseDto>()
             .ForMember(dest => dest.FirstName, opt =>
                 opt.MapFrom(src => src.AboutMe.FirstName))
             .ForMember(dest => dest.LastName, opt =>
@@ -35,9 +35,9 @@ public class UserProfile : Profile
         CreateMap<RegisterRequestDto, User>()
             .ForMember(dest => dest.UserName, opt =>
                 opt.MapFrom(src => src.UserName));
-        CreateMap<UserProfileDto, User>();
+        CreateMap<UserRequestDto, User>();
 
         // Reverse mapping
-        CreateMap<AboutMe, UserProfileDto>().ReverseMap();
+        CreateMap<AboutMe, UserResponseDto>().ReverseMap();
     }
 }

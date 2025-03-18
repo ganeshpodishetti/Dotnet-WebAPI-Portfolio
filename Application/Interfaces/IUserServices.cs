@@ -4,10 +4,10 @@ namespace Application.Interfaces;
 
 public interface IUserServices
 {
-    Task<UserProfileDto?> GetProfileByIdAsync(string accessToken);
+    Task<UserResponseDto?> GetProfileByIdAsync(string accessToken);
 
-    Task<bool> UpdateProfileAsync(UserProfileDto userProfileDto, string accessToken);
+    Task<bool> UpdateProfileAsync(UserRequestDto userRequestDto, string accessToken);
 
     //Task<bool> DeleteProfileAsync(string accessToken);
-    Task<bool> AddProfileAsync(UserProfileDto userProfileDto, string accessToken);
+    Task<bool> AddProfileAsync(UserRequestDto userRequestDto, string accessToken);
 }
