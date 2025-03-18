@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace Application.Services;
 
 public class AuthenticationService(
-    IIdentityRepository identityRepository,
+    IAuthenticationRepository authenticationRepository,
     IJwtTokenService jwtTokenService,
     IOptions<JwtTokenOptions> jwtOptions,
     IMapper mapper) : IAuthenticationService
@@ -18,12 +18,12 @@ public class AuthenticationService(
     // register a new user
     public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request)
     {
-        var existingUser = await identityRepository.FindByEmailAsync(request.Email);
+        var existingUser = await authenticationRepository.FindByEmailAsync(request.Email);
         if (existingUser != null) throw new UserAlreadyExistsException(request.Email, true);
 
         var user = mapper.Map<User>(request);
 
-        var createdUser = await identityRepository.RegisterUserAsync(user, request.Password);
+        var createdUser = await authenticationRepository.RegisterUserAsync(user, request.Password);
 
         var result = mapper.Map<RegisterResponseDto>(createdUser);
         return result;
@@ -32,11 +32,11 @@ public class AuthenticationService(
     // login a user
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var validateUser = await identityRepository.ValidateCredentialsAsync(request.Email, request.Password);
+        var validateUser = await authenticationRepository.ValidateCredentialsAsync(request.Email, request.Password);
         if (!validateUser)
             throw new LoginFailedException(request.Email);
 
-        var user = await identityRepository.FindByEmailAsync(request.Email);
+        var user = await authenticationRepository.FindByEmailAsync(request.Email);
         var token = await jwtTokenService.GenerateJwtToken(user!);
         var refreshToken = jwtTokenService.GenerateRefreshToken();
 
@@ -54,7 +54,8 @@ public class AuthenticationService(
     public async Task<bool> ChangePasswordAsync(ChangePasswordDto request, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var user = await identityRepository.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
+        var user = await authenticationRepository.ChangePasswordAsync(userId.ToString(), request.CurrentPassword,
+            request.NewPassword);
         return user;
     }
 
@@ -62,7 +63,7 @@ public class AuthenticationService(
     public async Task<bool> DeleteUserAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var user = await identityRepository.DeleteUserAsync(userId);
+        var user = await authenticationRepository.DeleteUserAsync(userId.ToString());
         return user;
     }
 }

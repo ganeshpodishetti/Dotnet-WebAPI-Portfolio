@@ -12,22 +12,20 @@ public class SocialLinkService(
     IMapper mapper,
     IJwtTokenService jwtTokenService) : ISocialLinkService
 {
+    // get social media links
     public async Task<IEnumerable<SocialLinkResponseDto>> GetSocialLinksByUserIdAsync(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var socialLinks = await unitOfWork.SocialLinkRepository.GetAllByUserIdAsync(userId);
         var response = mapper.Map<IEnumerable<SocialLinkResponseDto>>(socialLinks);
         return response;
     }
 
+    // add social media links
     public async Task<bool> AddSocialLinkAsync(SocialLinkRequestDto socialLinkRequestDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
@@ -35,7 +33,6 @@ public class SocialLinkService(
 
         var socialLink = mapper.Map<SocialLink>(socialLinkRequestDto);
         socialLink.UserId = existingUser.Id;
-        socialLink.CreatedAt = DateTime.UtcNow;
         socialLink.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.SocialLinkRepository.AddAsync(socialLink);
@@ -43,9 +40,11 @@ public class SocialLinkService(
         return result;
     }
 
+    // update social media links
     public async Task<bool> UpdateSocialLinkAsync(SocialLinkRequestDto socialLinkRequestDto, string accessToken)
     {
-        var existingSocialLink = await GetSocialLinkByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingSocialLink = await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId);
         if (existingSocialLink is null)
             throw new Exception("User does not exist to update experience.");
 
@@ -58,23 +57,16 @@ public class SocialLinkService(
         return result;
     }
 
+    // delete social media links
     public async Task<bool> DeleteSocialLinkAsync(string accessToken)
     {
-        var existingSocialLink = await GetSocialLinkByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingSocialLink = await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId);
         if (existingSocialLink is null)
             throw new Exception("User does not exist to delete experience.");
 
         var result = await unitOfWork.SocialLinkRepository.DeleteAsync(existingSocialLink);
         await unitOfWork.CommitAsync();
         return result;
-    }
-
-    private async Task<SocialLink?> GetSocialLinkByUserId(string accessToken)
-    {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
-
-        return await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId);
     }
 }

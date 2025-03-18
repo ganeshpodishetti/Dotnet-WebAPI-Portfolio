@@ -13,4 +13,5 @@ public class User : IdentityUser<Guid>
     public ICollection<Project> Projects { get; set; } = [];
     public ICollection<Skill> Skills { get; set; } = [];
     public ICollection<SocialLink> SocialLinks { get; set; } = [];
+    public ICollection<Message> Messages { get; set; } = [];
 }

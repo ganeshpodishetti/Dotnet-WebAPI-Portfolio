@@ -14,54 +14,44 @@ public class UserServices(IUnitOfWork unitOfWork, IMapper mapper, IJwtTokenServi
     // Get user profile by ID
     public async Task<UserResponseDto?> GetProfileByIdAsync(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var user = await unitOfWork.UserRepository.GetUserWithDetailsAsync(userId);
-        if (user is null)
-            throw new NotFoundException(nameof(user), userId.ToString());
+        var user = await unitOfWork.UserRepository.GetUserWithDetailsAsync(userId)
+                   ?? throw new NotFoundException(nameof(User), userId.ToString());
 
-        var result = mapper.Map<UserResponseDto>(user);
-        return result;
+        return mapper.Map<UserResponseDto>(user);
     }
 
     // Update user profile
     public async Task<bool> UpdateProfileAsync(UserRequestDto userRequestDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var toUpdate = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (toUpdate is null)
             throw new NotFoundException(nameof(toUpdate), userId.ToString());
 
-        // Update existing entity instead of creating new
-        return await UpdateExistingUserProfile(toUpdate, userRequestDto);
+        toUpdate.UpdatedAt = DateTime.UtcNow;
+
+        mapper.Map(userRequestDto, toUpdate.AboutMe);
+        var result = await unitOfWork.UserRepository.UpdateAsync(toUpdate);
+        await unitOfWork.CommitAsync();
+        return result;
     }
 
     // Add new profile or update existing one
     public async Task<bool> AddProfileAsync(UserRequestDto userRequestDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var toAdd = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (toAdd is null)
             throw new NotFoundException(nameof(toAdd), userId.ToString());
 
-        return await UpdateExistingUserProfile(toAdd, userRequestDto);
-    }
+        toAdd.UpdatedAt = DateTime.UtcNow;
 
-    // Update existing user profile
-    private async Task<bool> UpdateExistingUserProfile(User user, UserRequestDto userRequestDto)
-    {
-        user.UpdatedAt = DateTime.UtcNow;
-
-        mapper.Map(userRequestDto, user.AboutMe);
-        var result = await unitOfWork.UserRepository.UpdateAsync(user);
+        mapper.Map(userRequestDto, toAdd.AboutMe);
+        var result = await unitOfWork.UserRepository.AddAsync(toAdd);
         await unitOfWork.CommitAsync();
         return result;
     }

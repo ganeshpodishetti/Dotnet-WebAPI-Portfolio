@@ -18,6 +18,7 @@ internal class UserRepository(PortfolioDbContext context)
             .Include(u => u.Projects)
             .Include(p => p.Skills)
             .Include(p => p.SocialLinks)
+            .Include(p => p.Messages)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == userId);
     }

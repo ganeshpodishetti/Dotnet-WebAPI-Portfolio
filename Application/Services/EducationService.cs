@@ -13,11 +13,10 @@ public class EducationService(
     IJwtTokenService jwtTokenService)
     : IEducationService
 {
+    // add education
     public async Task<bool> AddEducationAsync(EducationRequestDto educationDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
@@ -25,7 +24,6 @@ public class EducationService(
 
         var education = mapper.Map<Education>(educationDto);
         education.UserId = existingUser.Id;
-        education.CreatedAt = DateTime.UtcNow;
         education.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.EducationRepository.AddAsync(education);
@@ -33,9 +31,11 @@ public class EducationService(
         return result;
     }
 
+    // update education
     public async Task<bool> UpdateEducationAsync(EducationRequestDto educationDto, string accessToken)
     {
-        var existingEducation = await GetEducationByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId);
         if (existingEducation is null)
             throw new Exception("User does not exist to update education.");
 
@@ -48,35 +48,27 @@ public class EducationService(
         return result;
     }
 
+    // delete education
     public async Task<bool> DeleteEducationAsync(string accessToken)
     {
-        var education = await GetEducationByUserId(accessToken);
-        if (education is null)
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId);
+        if (existingEducation is null)
             throw new Exception("User does not exist to delete education.");
 
-        var result = await unitOfWork.EducationRepository.DeleteAsync(education);
+        var result = await unitOfWork.EducationRepository.DeleteAsync(existingEducation);
         await unitOfWork.CommitAsync();
         return result;
     }
 
+    // get education
     public async Task<List<EducationResponseDto>> GetEducationsByIdAsync(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var educations = await unitOfWork.EducationRepository.GetAllByUserIdAsync(userId);
 
         var result = mapper.Map<List<EducationResponseDto>>(educations);
         return result;
-    }
-
-    private async Task<Education?> GetEducationByUserId(string accessToken)
-    {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
-
-        return await unitOfWork.EducationRepository.GetByUserIdAsync(userId);
     }
 }

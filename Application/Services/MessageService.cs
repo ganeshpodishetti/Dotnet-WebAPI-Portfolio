@@ -12,22 +12,20 @@ public class MessageService(
     IMapper mapper,
     IJwtTokenService jwtTokenService) : IMessageService
 {
+    // get messages
     public async Task<IEnumerable<MessageResponseDto>> GetMessagesByUserIdAsync(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var messages = await unitOfWork.MessageRepository.GetAllByUserIdAsync(userId);
         var response = mapper.Map<IEnumerable<MessageResponseDto>>(messages);
         return response;
     }
 
+    // sent messages
     public async Task<bool> AddMessageAsync(MessageRequestDto messageRequestDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
@@ -35,7 +33,6 @@ public class MessageService(
 
         var message = mapper.Map<Message>(messageRequestDto);
         message.UserId = existingUser.Id;
-        message.CreatedAt = DateTime.UtcNow;
         message.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.MessageRepository.AddAsync(message);
@@ -43,9 +40,11 @@ public class MessageService(
         return result;
     }
 
+    // edit messages
     public async Task<bool> UpdateMessageAsync(MessageRequestDto messageRequestDto, string accessToken)
     {
-        var existingMessage = await GetMessageByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId);
         if (existingMessage is null)
             throw new Exception("User does not exist to update message.");
 
@@ -58,9 +57,11 @@ public class MessageService(
         return result;
     }
 
+    // delete messages
     public async Task<bool> DeleteMessageAsync(string accessToken)
     {
-        var existingMessage = await GetMessageByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId);
         if (existingMessage is null)
             throw new Exception("User does not exist to delete experience.");
 
@@ -69,22 +70,12 @@ public class MessageService(
         return result;
     }
 
+    // get unread messages
     public async Task<int> GetNumberOfUnread(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var messages = await unitOfWork.MessageRepository.GetNumberOfUnread(userId);
         return messages;
-    }
-
-    private async Task<Message?> GetMessageByUserId(string accessToken)
-    {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
-
-        return await unitOfWork.MessageRepository.GetByUserIdAsync(userId);
     }
 }

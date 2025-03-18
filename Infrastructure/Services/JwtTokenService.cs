@@ -43,7 +43,7 @@ internal class JwtTokenService(
     }
 
     // Get User Id from Token
-    public string GetUserIdFromToken(string token)
+    public Guid GetUserIdFromToken(string token)
     {
         if (string.IsNullOrEmpty(token))
             throw new ArgumentException("Token is required");
@@ -53,10 +53,13 @@ internal class JwtTokenService(
         var handler = new JwtSecurityTokenHandler();
         var validationParameters = GetValidationParameters();
         var principal = handler.ValidateToken(token, validationParameters, out _);
-        var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(userIdString))
             throw new UnauthorizedAccessException("Invalid token");
+
+        if (!Guid.TryParse(userIdString, out var userId))
+            throw new InvalidOperationException("Invalid user ID format");
 
         return userId;
     }

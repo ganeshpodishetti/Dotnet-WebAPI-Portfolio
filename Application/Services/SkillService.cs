@@ -12,22 +12,20 @@ public class SkillService(
     IMapper mapper,
     IJwtTokenService jwtTokenService) : ISkillService
 {
+    // get skills
     public async Task<List<SkillResponseDto>> GetAllSkillsByUserIdAsync(string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var skills = await unitOfWork.SkillRepository.GetAllByUserIdAsync(userId);
         var result = mapper.Map<List<SkillResponseDto>>(skills);
         return result;
     }
 
+    // add skills
     public async Task<bool> AddSkillAsync(SkillRequestDto skillRequestDto, string accessToken)
     {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
@@ -35,7 +33,6 @@ public class SkillService(
 
         var toAddSkill = mapper.Map<Skill>(skillRequestDto);
         toAddSkill.UserId = existingUser.Id;
-        toAddSkill.CreatedAt = DateTime.UtcNow;
         toAddSkill.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.SkillRepository.AddAsync(toAddSkill);
@@ -43,9 +40,11 @@ public class SkillService(
         return result;
     }
 
+    // update skills
     public async Task<bool> UpdateSkillAsync(SkillRequestDto skillRequestDto, string accessToken)
     {
-        var existingSkill = await GetExperienceByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId);
         if (existingSkill is null)
             throw new Exception("User does not exist to update experience.");
 
@@ -58,23 +57,16 @@ public class SkillService(
         return result;
     }
 
+    // delete skills
     public async Task<bool> DeleteSkillAsync(string accessToken)
     {
-        var existingSkill = await GetExperienceByUserId(accessToken);
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId);
         if (existingSkill is null)
             throw new Exception("User does not exist to delete experience.");
 
         var result = await unitOfWork.SkillRepository.DeleteAsync(existingSkill);
         await unitOfWork.CommitAsync();
         return result;
-    }
-
-    private async Task<Skill?> GetExperienceByUserId(string accessToken)
-    {
-        var userIdString = jwtTokenService.GetUserIdFromToken(accessToken);
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
-
-        return await unitOfWork.SkillRepository.GetByUserIdAsync(userId);
     }
 }

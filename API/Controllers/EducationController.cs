@@ -15,6 +15,13 @@ public class EducationController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
+    [HttpGet("getEducationById")]
+    public async Task<IActionResult> GetEducationByIdAsync()
+    {
+        var result = await educationService.GetEducationsByIdAsync(AccessToken);
+        return Ok(result);
+    }
+
     [HttpPost("addEducation")]
     public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto educationDto)
     {
@@ -30,16 +37,9 @@ public class EducationController(
     }
 
     [HttpDelete("deleteEducation")]
-    public async Task<IActionResult> DeleteEducationAsync(string schoolName)
+    public async Task<IActionResult> DeleteEducationAsync()
     {
         var result = await educationService.DeleteEducationAsync(AccessToken);
-        return Ok(result);
-    }
-
-    [HttpGet("getEducationById")]
-    public async Task<IActionResult> GetEducationByIdAsync()
-    {
-        var result = await educationService.GetEducationsByIdAsync(AccessToken);
         return Ok(result);
     }
 }
