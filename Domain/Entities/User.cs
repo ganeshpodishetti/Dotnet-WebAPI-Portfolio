@@ -1,8 +1,9 @@
+using Domain.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities;
 
-public class User : IdentityUser<Guid>
+public class User : IdentityUser<Guid>, IUserEntity
 {
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -14,4 +15,5 @@ public class User : IdentityUser<Guid>
     public ICollection<Skill> Skills { get; set; } = [];
     public ICollection<SocialLink> SocialLinks { get; set; } = [];
     public ICollection<Message> Messages { get; set; } = [];
+    public Guid? UserId { get; set; }
 }

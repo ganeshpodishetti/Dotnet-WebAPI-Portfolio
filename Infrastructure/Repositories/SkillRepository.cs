@@ -10,13 +10,6 @@ internal class SkillRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<Skill?> GetByUserIdAsync(Guid userId)
-    {
-        return await _context.Skills
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.UserId == userId);
-    }
-
     public async Task<List<Skill>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Skills

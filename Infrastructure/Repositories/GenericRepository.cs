@@ -1,11 +1,12 @@
 using Domain.Interfaces;
+using Domain.UnitOfWork;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
 internal abstract class GenericRepository<T>(PortfolioDbContext context)
-    : IGenericRepository<T> where T : class
+    : IGenericRepository<T> where T : class, IUserEntity
 {
     // Add a new entity
     public async Task<bool> AddAsync(T entity, CancellationToken cancellationToken = default)
@@ -42,5 +43,12 @@ internal abstract class GenericRepository<T>(PortfolioDbContext context)
             // FindAsync for primary key lookups
             .FindAsync(id)
             .AsTask();
+    }
+
+    public async Task<T?> GetByUserIdAsync(Guid userId, Guid id)
+    {
+        return await context.Set<T>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.UserId == userId && e.Id == id);
     }
 }

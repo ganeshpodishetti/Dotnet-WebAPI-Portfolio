@@ -10,13 +10,6 @@ internal class ProjectRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<Project?> GetByUserIdAsync(Guid userId)
-    {
-        return await _context.Projects
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.UserId == userId);
-    }
-
     public async Task<IEnumerable<Project>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Projects

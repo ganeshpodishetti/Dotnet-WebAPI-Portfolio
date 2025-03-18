@@ -15,31 +15,32 @@ public class ProjectController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
-    [HttpGet("getProjectsByUserId")]
+    [HttpGet]
     public async Task<IActionResult> GetProjectsByUserId()
     {
         var result = await projectService.GetProjectsByUserIdAsync(AccessToken);
         return Ok(result);
     }
 
-    [HttpPost("addProject")]
+    [HttpPost]
     public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto projectRequestDto)
     {
         var result = await projectService.AddProjectAsync(projectRequestDto, AccessToken);
         return Ok(result);
     }
 
-    [HttpPatch("updateProject")]
-    public async Task<IActionResult> UpdateProject([FromBody] ProjectRequestDto projectRequestDto)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateProject([FromBody] ProjectRequestDto projectRequestDto,
+        [FromRoute] Guid id)
     {
-        var result = await projectService.UpdateProjectAsync(projectRequestDto, AccessToken);
+        var result = await projectService.UpdateProjectAsync(projectRequestDto, id, AccessToken);
         return Ok(result);
     }
 
-    [HttpDelete("deleteProject")]
-    public async Task<IActionResult> DeleteProject()
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteProject([FromRoute] Guid id)
     {
-        var result = await projectService.DeleteProjectAsync(AccessToken);
+        var result = await projectService.DeleteProjectAsync(id, AccessToken);
         return Ok(result);
     }
 }

@@ -1,8 +1,9 @@
 using Domain.Common;
+using Domain.UnitOfWork;
 
 namespace Domain.Entities;
 
-public class Experience : BaseEntity
+public class Experience : BaseEntity, IUserEntity
 {
     public required string Title { get; set; }
     public required string CompanyName { get; set; }
@@ -10,5 +11,5 @@ public class Experience : BaseEntity
     public DateOnly StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
     public string? Description { get; set; }
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 }

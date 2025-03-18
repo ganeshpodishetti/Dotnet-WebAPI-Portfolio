@@ -41,10 +41,10 @@ public class MessageService(
     }
 
     // edit messages
-    public async Task<bool> UpdateMessageAsync(MessageRequestDto messageRequestDto, string accessToken)
+    public async Task<bool> UpdateMessageAsync(MessageRequestDto messageRequestDto, Guid messageId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId);
+        var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId, messageId);
         if (existingMessage is null)
             throw new Exception("User does not exist to update message.");
 
@@ -58,10 +58,10 @@ public class MessageService(
     }
 
     // delete messages
-    public async Task<bool> DeleteMessageAsync(string accessToken)
+    public async Task<bool> DeleteMessageAsync(Guid messageId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId);
+        var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId, messageId);
         if (existingMessage is null)
             throw new Exception("User does not exist to delete experience.");
 

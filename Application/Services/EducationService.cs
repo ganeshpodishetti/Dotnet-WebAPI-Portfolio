@@ -32,14 +32,14 @@ public class EducationService(
     }
 
     // update education
-    public async Task<bool> UpdateEducationAsync(EducationRequestDto educationDto, string accessToken)
+    public async Task<bool> UpdateEducationAsync(EducationRequestDto educationDto, Guid id, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId);
+        var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId, id);
         if (existingEducation is null)
-            throw new Exception("User does not exist to update education.");
+            throw new Exception("Education record not found or does not belong to the user.");
 
-        // Map DTO to existing entity to preserve Id
+        // Map DTO to existing entity to preserve id
         mapper.Map(educationDto, existingEducation);
         existingEducation.UpdatedAt = DateTime.UtcNow;
 
@@ -49,10 +49,10 @@ public class EducationService(
     }
 
     // delete education
-    public async Task<bool> DeleteEducationAsync(string accessToken)
+    public async Task<bool> DeleteEducationAsync(Guid id, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId);
+        var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId, id);
         if (existingEducation is null)
             throw new Exception("User does not exist to delete education.");
 
