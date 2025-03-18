@@ -15,31 +15,32 @@ public class EducationController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
-    [HttpGet("getEducationById")]
+    [HttpGet]
     public async Task<IActionResult> GetEducationByIdAsync()
     {
         var result = await educationService.GetEducationsByIdAsync(AccessToken);
         return Ok(result);
     }
 
-    [HttpPost("addEducation")]
+    [HttpPost]
     public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto educationDto)
     {
         var result = await educationService.AddEducationAsync(educationDto, AccessToken);
         return Ok(result);
     }
 
-    [HttpPatch("updateEducation")]
-    public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto educationDto)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto educationDto,
+        [FromRoute] Guid id)
     {
-        var result = await educationService.UpdateEducationAsync(educationDto, AccessToken);
+        var result = await educationService.UpdateEducationAsync(educationDto, id, AccessToken);
         return Ok(result);
     }
 
-    [HttpDelete("deleteEducation")]
-    public async Task<IActionResult> DeleteEducationAsync()
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteEducationAsync([FromRoute] Guid id)
     {
-        var result = await educationService.DeleteEducationAsync(AccessToken);
+        var result = await educationService.DeleteEducationAsync(id, AccessToken);
         return Ok(result);
     }
 }

@@ -10,13 +10,6 @@ internal class MessageRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<Message?> GetByUserIdAsync(Guid userId)
-    {
-        return await _context.Messages
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.UserId == userId);
-    }
-
     public async Task<IEnumerable<Message>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Messages

@@ -41,14 +41,15 @@ public class SocialLinkService(
     }
 
     // update social media links
-    public async Task<bool> UpdateSocialLinkAsync(SocialLinkRequestDto socialLinkRequestDto, string accessToken)
+    public async Task<bool> UpdateSocialLinkAsync(SocialLinkRequestDto socialLinkRequestDto, Guid socialLinkId,
+        string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingSocialLink = await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId);
+        var existingSocialLink = await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId, socialLinkId);
         if (existingSocialLink is null)
             throw new Exception("User does not exist to update experience.");
 
-        // Map DTO to existing entity to preserve Id
+        // Map DTO to existing entity to preserve id
         mapper.Map(socialLinkRequestDto, existingSocialLink);
         existingSocialLink.UpdatedAt = DateTime.UtcNow;
 
@@ -58,10 +59,10 @@ public class SocialLinkService(
     }
 
     // delete social media links
-    public async Task<bool> DeleteSocialLinkAsync(string accessToken)
+    public async Task<bool> DeleteSocialLinkAsync(Guid socialLinkId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingSocialLink = await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId);
+        var existingSocialLink = await unitOfWork.SocialLinkRepository.GetByUserIdAsync(userId, socialLinkId);
         if (existingSocialLink is null)
             throw new Exception("User does not exist to delete experience.");
 

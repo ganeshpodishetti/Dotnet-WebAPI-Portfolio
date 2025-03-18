@@ -14,10 +14,6 @@ public class EducationProfile : Profile
                 opt.MapFrom(src => src.UpdatedAt.ToString()));
 
         // Dtos to Domain
-        CreateMap<EducationRequestDto, Education>()
-            .ForMember(dest => dest.StartDate, opt => opt
-                .MapFrom(src => DateOnly.ParseExact(src.StartDate, "yyyy-MM-dd")))
-            .ForMember(dest => dest.EndDate, opt => opt
-                .MapFrom(src => DateOnly.ParseExact(src.EndDate ?? string.Empty, "yyyy-MM-dd")));
+        CreateMap<EducationRequestDto, Education>();
     }
 }

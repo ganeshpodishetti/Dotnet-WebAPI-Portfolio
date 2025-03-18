@@ -15,31 +15,32 @@ public class ExperienceController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
-    [HttpGet("getExperiencesById")]
+    [HttpGet]
     public async Task<IActionResult> GetExperiencesByUserId()
     {
         var result = await experienceService.GetExperiencesByUserIdAsync(AccessToken);
         return Ok(result);
     }
 
-    [HttpPost("addExperience")]
+    [HttpPost]
     public async Task<IActionResult> AddExperience([FromBody] ExperienceRequestDto experienceRequestDto)
     {
         var result = await experienceService.AddExperienceAsync(experienceRequestDto, AccessToken);
         return Ok(result);
     }
 
-    [HttpPatch("updateExperience")]
-    public async Task<IActionResult> UpdateExperienceAsync([FromBody] ExperienceRequestDto experienceRequestDto)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateExperienceAsync([FromBody] ExperienceRequestDto experienceRequestDto,
+        [FromRoute] Guid id)
     {
-        var result = await experienceService.UpdateExperienceAsync(experienceRequestDto, AccessToken);
+        var result = await experienceService.UpdateExperienceAsync(experienceRequestDto, id, AccessToken);
         return Ok(result);
     }
 
-    [HttpDelete("deleteExperience")]
-    public async Task<IActionResult> DeleteExperienceAsync()
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteExperienceAsync([FromRoute] Guid id)
     {
-        var result = await experienceService.DeleteExperienceAsync(AccessToken);
+        var result = await experienceService.DeleteExperienceAsync(id, AccessToken);
         return Ok(result);
     }
 }

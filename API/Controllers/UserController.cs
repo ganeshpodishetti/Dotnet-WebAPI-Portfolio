@@ -16,7 +16,7 @@ public class UserController(
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
     // GET: api/user/GetUserProfiles/id
-    [HttpGet("GetProfileById")]
+    [HttpGet]
     public async Task<IActionResult> GetProfileById()
     {
         var result = await userServices.GetProfileByIdAsync(AccessToken);
@@ -24,7 +24,7 @@ public class UserController(
     }
 
     // POST: api/user/AddUserProfile
-    [HttpPost("AddUserProfile")]
+    [HttpPost]
     public async Task<IActionResult> AddUserProfile([FromBody] UserRequestDto userRequestDto)
     {
         var result = await userServices.AddProfileAsync(userRequestDto, AccessToken);
@@ -32,7 +32,7 @@ public class UserController(
     }
 
     // PUT: api/user/UpdateUserProfile
-    [HttpPatch("UpdateUserProfile")]
+    [HttpPatch]
     public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto userRequestDto)
     {
         var result = await userServices.UpdateProfileAsync(userRequestDto, AccessToken);

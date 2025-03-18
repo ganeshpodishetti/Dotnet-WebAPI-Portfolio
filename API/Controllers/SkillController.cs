@@ -15,31 +15,31 @@ public class SkillController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
-    [HttpGet("getSkills")]
+    [HttpGet]
     public async Task<IActionResult> GetSkillsAsync()
     {
         var result = await skillService.GetAllSkillsByUserIdAsync(AccessToken);
         return Ok(result);
     }
 
-    [HttpPost("addSkill")]
+    [HttpPost]
     public async Task<IActionResult> AddSkillAsync([FromBody] SkillRequestDto skillDto)
     {
         var result = await skillService.AddSkillAsync(skillDto, AccessToken);
         return Ok(result);
     }
 
-    [HttpPatch("updateSkill")]
-    public async Task<IActionResult> UpdateSkillAsync([FromBody] SkillRequestDto skillDto)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateSkillAsync([FromBody] SkillRequestDto skillDto, [FromRoute] Guid id)
     {
-        var result = await skillService.UpdateSkillAsync(skillDto, AccessToken);
+        var result = await skillService.UpdateSkillAsync(skillDto, id, AccessToken);
         return Ok(result);
     }
 
-    [HttpDelete("deleteSkill")]
-    public async Task<IActionResult> DeleteSkillAsync()
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteSkillAsync([FromRoute] Guid id)
     {
-        var result = await skillService.DeleteSkillAsync(AccessToken);
+        var result = await skillService.DeleteSkillAsync(id, AccessToken);
         return Ok(result);
     }
 }

@@ -10,13 +10,6 @@ internal class SocialLinkRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<SocialLink?> GetByUserIdAsync(Guid userId)
-    {
-        return await _context.SocialLinks
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.UserId == userId);
-    }
-
     public async Task<IEnumerable<SocialLink>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.SocialLinks

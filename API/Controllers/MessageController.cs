@@ -23,31 +23,32 @@ public class MessageController(
         return Ok(result);
     }
 
-    [HttpGet("getUnReadMessages")]
+    [HttpGet]
     public async Task<IActionResult> GetUnReadMessages()
     {
         var result = await messageService.GetNumberOfUnread(AccessToken);
         return Ok(result);
     }
 
-    [HttpPost("addMessage")]
+    [HttpPost]
     public async Task<IActionResult> AddMessage([FromBody] MessageRequestDto messageRequestDto)
     {
         var result = await messageService.AddMessageAsync(messageRequestDto, AccessToken);
         return Ok("Message sent successfully.");
     }
 
-    [HttpPatch("markAsRead")]
-    public async Task<IActionResult> MarkAsRead([FromBody] MessageRequestDto messageRequestDto)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> MarkAsRead([FromBody] MessageRequestDto messageRequestDto,
+        [FromRoute] Guid id)
     {
-        var result = await messageService.UpdateMessageAsync(messageRequestDto, AccessToken);
+        var result = await messageService.UpdateMessageAsync(messageRequestDto, id, AccessToken);
         return Ok(result);
     }
 
-    [HttpDelete("deleteMessage")]
-    public async Task<IActionResult> DeleteMessage()
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteMessage([FromRoute] Guid id)
     {
-        var result = await messageService.DeleteMessageAsync(AccessToken);
+        var result = await messageService.DeleteMessageAsync(id, AccessToken);
         return Ok("Message deleted successfully.");
     }
 }

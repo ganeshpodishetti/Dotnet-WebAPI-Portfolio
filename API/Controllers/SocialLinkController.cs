@@ -16,31 +16,32 @@ public class SocialLinkController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
-    [HttpGet("getSocialLinks")]
+    [HttpGet]
     public async Task<IActionResult> GetSocialLinksByUserId()
     {
         var result = await socialLinkService.GetSocialLinksByUserIdAsync(AccessToken);
         return Ok(result);
     }
 
-    [HttpPost("addSocialLinks")]
+    [HttpPost]
     public async Task<IActionResult> AddSocialLinks([FromBody] SocialLinkRequestDto socialLinks)
     {
         var result = await socialLinkService.AddSocialLinkAsync(socialLinks, AccessToken);
         return Ok(result);
     }
 
-    [HttpPatch("updateSocialLinks")]
-    public async Task<IActionResult> UpdateSocialLinks([FromBody] SocialLinkRequestDto socialLinks)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateSocialLinks([FromBody] SocialLinkRequestDto socialLinks,
+        [FromRoute] Guid id)
     {
-        var result = await socialLinkService.UpdateSocialLinkAsync(socialLinks, AccessToken);
+        var result = await socialLinkService.UpdateSocialLinkAsync(socialLinks, id, AccessToken);
         return Ok(result);
     }
 
-    [HttpDelete("deleteSocialLinks")]
-    public async Task<IActionResult> DeleteSocialLinks()
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteSocialLinks([FromRoute] Guid id)
     {
-        var result = await socialLinkService.DeleteSocialLinkAsync(AccessToken);
+        var result = await socialLinkService.DeleteSocialLinkAsync(id, AccessToken);
         return Ok(result);
     }
 }

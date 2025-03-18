@@ -10,13 +10,6 @@ internal class ExperienceRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<Experience?> GetByUserIdAsync(Guid userId)
-    {
-        return await _context.Experiences
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.UserId == userId);
-    }
-
     public async Task<List<Experience>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Experiences

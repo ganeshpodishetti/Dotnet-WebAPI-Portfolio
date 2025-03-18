@@ -42,10 +42,11 @@ public class ProjectService(
     }
 
     // edit projects
-    public async Task<bool> UpdateProjectAsync(ProjectRequestDto experienceRequestDto, string accessToken)
+    public async Task<bool> UpdateProjectAsync(ProjectRequestDto experienceRequestDto, Guid projectId,
+        string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingProject = await unitOfWork.ProjectRepository.GetByUserIdAsync(userId);
+        var existingProject = await unitOfWork.ProjectRepository.GetByUserIdAsync(userId, projectId);
         if (existingProject is null)
             throw new Exception("User does not exist to update experience.");
 
@@ -59,10 +60,10 @@ public class ProjectService(
     }
 
     // delete projects
-    public async Task<bool> DeleteProjectAsync(string accessToken)
+    public async Task<bool> DeleteProjectAsync(Guid projectId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingProject = await unitOfWork.ProjectRepository.GetByUserIdAsync(userId);
+        var existingProject = await unitOfWork.ProjectRepository.GetByUserIdAsync(userId, projectId);
         if (existingProject is null)
             throw new Exception("User does not exist to delete experience.");
 

@@ -41,10 +41,10 @@ public class SkillService(
     }
 
     // update skills
-    public async Task<bool> UpdateSkillAsync(SkillRequestDto skillRequestDto, string accessToken)
+    public async Task<bool> UpdateSkillAsync(SkillRequestDto skillRequestDto, Guid skillId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId);
+        var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId, skillId);
         if (existingSkill is null)
             throw new Exception("User does not exist to update experience.");
 
@@ -58,10 +58,10 @@ public class SkillService(
     }
 
     // delete skills
-    public async Task<bool> DeleteSkillAsync(string accessToken)
+    public async Task<bool> DeleteSkillAsync(Guid skillId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId);
+        var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId, skillId);
         if (existingSkill is null)
             throw new Exception("User does not exist to delete experience.");
 
