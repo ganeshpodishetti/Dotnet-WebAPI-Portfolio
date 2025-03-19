@@ -16,14 +16,14 @@ public class MessageController(
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
-    [HttpGet("getMessages")]
+    [HttpGet]
     public async Task<IActionResult> GetMessages()
     {
         var result = await messageService.GetMessagesByUserIdAsync(AccessToken);
         return Ok(result);
     }
 
-    [HttpGet]
+    [HttpGet("unreadMessages")]
     public async Task<IActionResult> GetUnReadMessages()
     {
         var result = await messageService.GetNumberOfUnread(AccessToken);
@@ -38,7 +38,7 @@ public class MessageController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> MarkAsRead([FromBody] MessageRequestDto messageRequestDto,
+    public async Task<IActionResult> MarkAsRead([FromBody] UpdateMessageDto messageRequestDto,
         [FromRoute] Guid id)
     {
         var result = await messageService.UpdateMessageAsync(messageRequestDto, id, AccessToken);

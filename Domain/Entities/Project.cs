@@ -12,5 +12,5 @@ public class Project : BaseEntity, IUserEntity
 
     public List<string>? Skills { get; set; } = [];
 
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
 }

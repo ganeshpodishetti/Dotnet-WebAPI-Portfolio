@@ -23,14 +23,6 @@ public class UserController(
         return Ok(result);
     }
 
-    // POST: api/user/AddUserProfile
-    [HttpPost]
-    public async Task<IActionResult> AddUserProfile([FromBody] UserRequestDto userRequestDto)
-    {
-        var result = await userServices.AddProfileAsync(userRequestDto, AccessToken);
-        return Ok(result);
-    }
-
     // PUT: api/user/UpdateUserProfile
     [HttpPatch]
     public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto userRequestDto)
