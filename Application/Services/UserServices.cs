@@ -38,21 +38,4 @@ public class UserServices(IUnitOfWork unitOfWork, IMapper mapper, IJwtTokenServi
         await unitOfWork.CommitAsync();
         return result;
     }
-
-    // Add new profile or update existing one
-    public async Task<bool> AddProfileAsync(UserRequestDto userRequestDto, string accessToken)
-    {
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-
-        var toAdd = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (toAdd is null)
-            throw new NotFoundException(nameof(toAdd), userId.ToString());
-
-        toAdd.UpdatedAt = DateTime.UtcNow;
-
-        mapper.Map(userRequestDto, toAdd.AboutMe);
-        var result = await unitOfWork.UserRepository.AddAsync(toAdd);
-        await unitOfWork.CommitAsync();
-        return result;
-    }
 }

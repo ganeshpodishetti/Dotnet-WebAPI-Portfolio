@@ -34,6 +34,7 @@ public class MessageService(
         var message = mapper.Map<Message>(messageRequestDto);
         message.UserId = existingUser.Id;
         message.UpdatedAt = DateTime.UtcNow;
+        message.SentAt = DateTime.UtcNow;
 
         var result = await unitOfWork.MessageRepository.AddAsync(message);
         await unitOfWork.CommitAsync();
@@ -41,16 +42,17 @@ public class MessageService(
     }
 
     // edit messages
-    public async Task<bool> UpdateMessageAsync(MessageRequestDto messageRequestDto, Guid messageId, string accessToken)
+    public async Task<bool> UpdateMessageAsync(UpdateMessageDto messageRequestDto, Guid messageId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingMessage = await unitOfWork.MessageRepository.GetByUserIdAsync(userId, messageId);
         if (existingMessage is null)
             throw new Exception("User does not exist to update message.");
 
-        // Map DTO to existing entity to preserve Id
+        // Map DTO to existing entity to preserve id
         mapper.Map(messageRequestDto, existingMessage);
         existingMessage.UpdatedAt = DateTime.UtcNow;
+        existingMessage.IsRead = true;
 
         var result = await unitOfWork.MessageRepository.UpdateAsync(existingMessage);
         await unitOfWork.CommitAsync();
