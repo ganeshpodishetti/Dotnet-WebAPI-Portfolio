@@ -8,14 +8,8 @@ public class SkillConfiguration : IEntityTypeConfiguration<Skill>
 {
     public void Configure(EntityTypeBuilder<Skill> builder)
     {
-        builder.Property(t => t.Name)
+        builder.Property(t => t.SkillType)
             .HasMaxLength(100)
-            .IsRequired();
-
-        builder.Property(t => t.Proficiency)
-            .HasMaxLength(10);
-
-        builder.Property(t => t.YearsOfExperience)
             .IsRequired();
     }
 }

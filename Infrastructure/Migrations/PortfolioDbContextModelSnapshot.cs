@@ -220,18 +220,14 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("Proficiency")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("YearsOfExperience")
-                        .HasColumnType("integer");
+                    b.Property<string>("logo")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
