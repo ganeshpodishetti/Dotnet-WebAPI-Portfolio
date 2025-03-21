@@ -13,12 +13,15 @@ public class EducationConfiguration : IEntityTypeConfiguration<Education>
             .IsRequired();
 
         builder.Property(t => t.FieldOfStudy)
-            .HasMaxLength(250)
-            .IsRequired();        
+            .HasMaxLength(250);
 
         builder.Property(t => t.StartDate)
             .HasMaxLength(10)
             .IsRequired();
+
+        builder.Property(t => t.Location)
+            .IsRequired()
+            .HasMaxLength(250);
 
         builder.Property(t => t.EndDate)
             .HasMaxLength(10);

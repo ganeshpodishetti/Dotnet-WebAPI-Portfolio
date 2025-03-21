@@ -1,6 +1,7 @@
 using API.Helpers;
 using Application.DTOs.Message;
 using Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace API.Controllers;
 [Authorize]
 public class MessageController(
     IMessageService messageService,
-    IAccessTokenHelper accessTokenHelper)
+    IAccessTokenHelper accessTokenHelper,
+    IFormatValidation formatValidation)
     : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
@@ -31,17 +33,25 @@ public class MessageController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddMessage([FromBody] MessageRequestDto messageRequestDto)
+    public async Task<IActionResult> AddMessage([FromBody] MessageRequestDto request,
+        IValidator<MessageRequestDto> validator)
     {
-        var result = await messageService.AddMessageAsync(messageRequestDto, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await messageService.AddMessageAsync(request, AccessToken);
         return Ok("Message sent successfully.");
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> MarkAsRead([FromBody] UpdateMessageDto messageRequestDto,
-        [FromRoute] Guid id)
+    public async Task<IActionResult> MarkAsRead([FromBody] UpdateMessageDto request,
+        [FromRoute] Guid id, IValidator<UpdateMessageDto> validator)
     {
-        var result = await messageService.UpdateMessageAsync(messageRequestDto, id, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+        var result = await messageService.UpdateMessageAsync(request, id, AccessToken);
         return Ok(result);
     }
 

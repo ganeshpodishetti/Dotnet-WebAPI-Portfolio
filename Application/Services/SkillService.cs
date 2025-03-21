@@ -33,7 +33,6 @@ public class SkillService(
 
         var toAddSkill = mapper.Map<Skill>(skillRequestDto);
         toAddSkill.UserId = existingUser.Id;
-        toAddSkill.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.SkillRepository.AddAsync(toAddSkill);
         await unitOfWork.CommitAsync();

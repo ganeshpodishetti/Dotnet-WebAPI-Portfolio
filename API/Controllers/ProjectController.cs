@@ -1,6 +1,7 @@
 using API.Helpers;
 using Application.DTOs.Project;
 using Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace API.Controllers;
 [Authorize]
 public class ProjectController(
     IProjectService projectService,
-    IAccessTokenHelper accessTokenHelper) : Controller
+    IAccessTokenHelper accessTokenHelper,
+    IFormatValidation formatValidation) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
@@ -23,17 +25,26 @@ public class ProjectController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto projectRequestDto)
+    public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto request,
+        IValidator<ProjectRequestDto> validator)
     {
-        var result = await projectService.AddProjectAsync(projectRequestDto, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await projectService.AddProjectAsync(request, AccessToken);
         return Ok(result);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateProject([FromBody] ProjectRequestDto projectRequestDto,
-        [FromRoute] Guid id)
+    public async Task<IActionResult> UpdateProject([FromBody] ProjectRequestDto request,
+        [FromRoute] Guid id, IValidator<ProjectRequestDto> validator)
     {
-        var result = await projectService.UpdateProjectAsync(projectRequestDto, id, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await projectService.UpdateProjectAsync(request, id, AccessToken);
         return Ok(result);
     }
 

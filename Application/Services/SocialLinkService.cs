@@ -33,7 +33,6 @@ public class SocialLinkService(
 
         var socialLink = mapper.Map<SocialLink>(socialLinkRequestDto);
         socialLink.UserId = existingUser.Id;
-        socialLink.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.SocialLinkRepository.AddAsync(socialLink);
         await unitOfWork.CommitAsync();

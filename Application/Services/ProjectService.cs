@@ -34,7 +34,6 @@ public class ProjectService(
 
         var project = mapper.Map<Project>(projectRequestDto);
         project.UserId = existingUser.Id;
-        project.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.ProjectRepository.AddAsync(project);
         await unitOfWork.CommitAsync();

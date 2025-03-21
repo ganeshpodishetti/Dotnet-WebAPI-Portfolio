@@ -25,5 +25,6 @@ public static class WebApplicationBuilderExtension
 
         // Registering the Services
         builder.Services.AddScoped<IAccessTokenHelper, AccessTokenHelper>();
+        builder.Services.AddScoped<IFormatValidation, FormatValidation>();
     }
 }

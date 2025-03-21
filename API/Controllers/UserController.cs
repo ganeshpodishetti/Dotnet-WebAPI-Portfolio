@@ -1,6 +1,7 @@
 using API.Helpers;
 using Application.DTOs.User;
 using Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace API.Controllers;
 [Authorize]
 public class UserController(
     IUserServices userServices,
-    IAccessTokenHelper accessTokenHelper) : Controller
+    IAccessTokenHelper accessTokenHelper,
+    IFormatValidation formatValidation) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
@@ -25,9 +27,14 @@ public class UserController(
 
     // PUT: api/user/UpdateUserProfile
     [HttpPatch]
-    public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto userRequestDto)
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto request,
+        IValidator<UserRequestDto> validator)
     {
-        var result = await userServices.UpdateProfileAsync(userRequestDto, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await userServices.UpdateProfileAsync(request, AccessToken);
         return Ok(result);
     }
 }
