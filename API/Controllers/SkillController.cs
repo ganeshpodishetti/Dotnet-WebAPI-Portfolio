@@ -1,6 +1,7 @@
 using API.Helpers;
 using Application.DTOs.Skill;
 using Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace API.Controllers;
 [Authorize]
 public class SkillController(
     ISkillService skillService,
-    IAccessTokenHelper accessTokenHelper) : Controller
+    IAccessTokenHelper accessTokenHelper,
+    IFormatValidation formatValidation) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
@@ -23,16 +25,26 @@ public class SkillController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddSkillAsync([FromBody] SkillRequestDto skillDto)
+    public async Task<IActionResult> AddSkillAsync([FromBody] SkillRequestDto request,
+        IValidator<SkillRequestDto> validator)
     {
-        var result = await skillService.AddSkillAsync(skillDto, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await skillService.AddSkillAsync(request, AccessToken);
         return Ok(result);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateSkillAsync([FromBody] SkillRequestDto skillDto, [FromRoute] Guid id)
+    public async Task<IActionResult> UpdateSkillAsync([FromBody] SkillRequestDto request, [FromRoute] Guid id,
+        IValidator<SkillRequestDto> validator)
     {
-        var result = await skillService.UpdateSkillAsync(skillDto, id, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await skillService.UpdateSkillAsync(request, id, AccessToken);
         return Ok(result);
     }
 

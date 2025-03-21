@@ -22,5 +22,8 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
 
         builder.Property(t => t.IsRead)
             .IsRequired();
+
+        builder.Property(t => t.Subject)
+            .HasMaxLength(250);
     }
 }

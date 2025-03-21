@@ -11,7 +11,7 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.Property(t => t.Name)
             .HasMaxLength(100)
             .IsRequired();
-        
+
         builder.Property(t => t.Description)
             .HasMaxLength(1000)
             .IsRequired();
@@ -20,6 +20,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
             .HasMaxLength(50);
 
         builder.Property(t => t.GithubUrl)
+            .IsRequired()
             .HasMaxLength(50);
+
+        builder.Property(t => t.Skills)
+            .HasMaxLength(2500);
     }
 }

@@ -24,7 +24,6 @@ public class EducationService(
 
         var education = mapper.Map<Education>(educationDto);
         education.UserId = existingUser.Id;
-        education.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.EducationRepository.AddAsync(education);
         await unitOfWork.CommitAsync();

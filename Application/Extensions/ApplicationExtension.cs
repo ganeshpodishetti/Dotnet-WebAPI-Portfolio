@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Services;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.Extensions;
@@ -12,6 +13,9 @@ public static class ApplicationExtension
 
         // Auto Mapper
         services.AddAutoMapper(applicationAssembly);
+
+        // Fluent Validations
+        services.AddValidatorsFromAssembly(applicationAssembly, includeInternalTypes: true);
 
         // Registering the UserServices
         services.AddScoped<IUserServices, UserServices>();

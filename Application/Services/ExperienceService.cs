@@ -33,7 +33,6 @@ public class ExperienceService(
 
         var experience = mapper.Map<Experience>(experienceRequestDto);
         experience.UserId = existingUser.Id;
-        experience.UpdatedAt = DateTime.UtcNow;
 
         var result = await unitOfWork.ExperienceRepository.AddAsync(experience);
         await unitOfWork.CommitAsync();

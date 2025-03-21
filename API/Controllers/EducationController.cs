@@ -1,6 +1,7 @@
 using API.Helpers;
 using Application.DTOs.Education;
 using Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace API.Controllers;
 [Authorize]
 public class EducationController(
     IEducationService educationService,
-    IAccessTokenHelper accessTokenHelper) : Controller
+    IAccessTokenHelper accessTokenHelper,
+    IFormatValidation formatValidation) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
@@ -23,17 +25,26 @@ public class EducationController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto educationDto)
+    public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto request,
+        IValidator<EducationRequestDto> validator)
     {
-        var result = await educationService.AddEducationAsync(educationDto, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await educationService.AddEducationAsync(request, AccessToken);
         return Ok(result);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto educationDto,
-        [FromRoute] Guid id)
+    public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto request,
+        [FromRoute] Guid id, IValidator<EducationRequestDto> validator)
     {
-        var result = await educationService.UpdateEducationAsync(educationDto, id, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await educationService.UpdateEducationAsync(request, id, AccessToken);
         return Ok(result);
     }
 

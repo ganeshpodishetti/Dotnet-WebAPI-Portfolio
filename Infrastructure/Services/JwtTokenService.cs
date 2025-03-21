@@ -72,9 +72,9 @@ internal class JwtTokenService(
             new(ClaimTypes.Name, user.UserName!),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email!),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("FirstName", user.AboutMe.FirstName),
-            new("LastName", user.AboutMe.LastName)
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            // new("FirstName", user.AboutMe.FirstName),
+            // new("LastName", user.AboutMe.LastName)
         };
 
         var roles = await userManager.GetRolesAsync(user);

@@ -1,7 +1,6 @@
 using API.Handlers;
 using API.Helpers;
 using Domain.Options;
-using FluentValidation;
 
 namespace API.Extensions;
 
@@ -9,12 +8,6 @@ public static class WebApplicationBuilderExtension
 {
     public static void AddPresentation(this WebApplicationBuilder builder)
     {
-        var applicationAssembly = typeof(WebApplicationBuilderExtension).Assembly;
-
-        // Fluent Validations
-        builder.Services.AddValidatorsFromAssembly(applicationAssembly, includeInternalTypes: true);
-
-
         // Registering the exception handler
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();

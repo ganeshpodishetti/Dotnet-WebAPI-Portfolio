@@ -33,7 +33,6 @@ public class MessageService(
 
         var message = mapper.Map<Message>(messageRequestDto);
         message.UserId = existingUser.Id;
-        message.UpdatedAt = DateTime.UtcNow;
         message.SentAt = DateTime.UtcNow;
 
         var result = await unitOfWork.MessageRepository.AddAsync(message);
@@ -52,7 +51,6 @@ public class MessageService(
         // Map DTO to existing entity to preserve id
         mapper.Map(messageRequestDto, existingMessage);
         existingMessage.UpdatedAt = DateTime.UtcNow;
-        existingMessage.IsRead = true;
 
         var result = await unitOfWork.MessageRepository.UpdateAsync(existingMessage);
         await unitOfWork.CommitAsync();

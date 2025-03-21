@@ -6,9 +6,9 @@ namespace Domain.Entities;
 public sealed class User : IdentityUser<Guid>, IUserEntity
 {
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
 
-    public AboutMe AboutMe { get; set; } = null!;
+    public AboutMe AboutMe { get; set; } = new();
     public ICollection<Education> Educations { get; set; } = [];
     public ICollection<Experience> Experiences { get; set; } = [];
     public ICollection<Project> Projects { get; set; } = [];

@@ -11,8 +11,8 @@ internal abstract class GenericRepository<T>(PortfolioDbContext context)
     // Add a new entity
     public async Task<bool> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-        await context.Set<T>().AddAsync(entity, cancellationToken);
-        return true;
+        var entry = await context.Set<T>().AddAsync(entity, cancellationToken);
+        return entry.State == EntityState.Added;
     }
 
     // Get all entities
@@ -26,15 +26,15 @@ internal abstract class GenericRepository<T>(PortfolioDbContext context)
     // Update an existing entity
     public Task<bool> UpdateAsync(T entity)
     {
-        context.Set<T>().Update(entity);
-        return Task.FromResult(true);
+        var entry = context.Set<T>().Update(entity);
+        return Task.FromResult(entry.State == EntityState.Modified);
     }
 
     // Delete an entity
     public Task<bool> DeleteAsync(T entity)
     {
-        context.Set<T>().Remove(entity);
-        return Task.FromResult(true);
+        var entry = context.Set<T>().Remove(entity);
+        return Task.FromResult(entry.State == EntityState.Deleted);
     }
 
     public async Task<T?> GetByIdAsync(object id)

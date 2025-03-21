@@ -1,6 +1,7 @@
 using API.Helpers;
 using Application.DTOs.SocialLink;
 using Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace API.Controllers;
 [Authorize]
 public class SocialLinkController(
     ISocialLinkService socialLinkService,
-    IAccessTokenHelper accessTokenHelper)
+    IAccessTokenHelper accessTokenHelper,
+    IFormatValidation formatValidation)
     : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
@@ -24,17 +26,26 @@ public class SocialLinkController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddSocialLinks([FromBody] SocialLinkRequestDto socialLinks)
+    public async Task<IActionResult> AddSocialLinks([FromBody] SocialLinkRequestDto request,
+        IValidator<SocialLinkRequestDto> validator)
     {
-        var result = await socialLinkService.AddSocialLinkAsync(socialLinks, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await socialLinkService.AddSocialLinkAsync(request, AccessToken);
         return Ok(result);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateSocialLinks([FromBody] SocialLinkRequestDto socialLinks,
-        [FromRoute] Guid id)
+    public async Task<IActionResult> UpdateSocialLinks([FromBody] SocialLinkRequestDto request,
+        [FromRoute] Guid id, IValidator<SocialLinkRequestDto> validator)
     {
-        var result = await socialLinkService.UpdateSocialLinkAsync(socialLinks, id, AccessToken);
+        var validationResult = await validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
+
+        var result = await socialLinkService.UpdateSocialLinkAsync(request, id, AccessToken);
         return Ok(result);
     }
 
