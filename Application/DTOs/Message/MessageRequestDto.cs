@@ -23,6 +23,6 @@ public class MessageRequestValidator : AbstractValidator<MessageRequestDto>
         RuleFor(x => x.Content)
             .NotEmpty().MaximumLength(1000);
         RuleFor(x => x.Subject)
-            .NotEmpty().MaximumLength(500);
+            .MaximumLength(500);
     }
 }
