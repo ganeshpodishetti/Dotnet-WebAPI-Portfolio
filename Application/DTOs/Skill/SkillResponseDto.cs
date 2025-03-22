@@ -1,7 +1,8 @@
 namespace Application.DTOs.Skill;
 
-public record SkillResponseDto(
-    Guid? Id,
-    string? Name,
-    string? Logo,
-    string? UpdatedAt);
+public record SkillResponseDto
+{
+    public string? SkillCategory { get; set; }
+    public List<string>? SkillsTypes { get; set; }
+    public string? UpdatedAt { get; set; }
+}
