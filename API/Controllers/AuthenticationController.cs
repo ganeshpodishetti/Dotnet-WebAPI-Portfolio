@@ -1,3 +1,4 @@
+using API.Extensions;
 using API.Helpers;
 using Application.DTOs.Authentication;
 using Application.Interfaces;
@@ -25,7 +26,10 @@ public class AuthenticationController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var response = await authenticationService.RegisterAsync(request);
-        return Ok(response);
+        return response.Match<IActionResult>(
+            success => Ok(response.Value),
+            error => error.ToActionResult()
+        );
     }
 
     [HttpPost("login")]
@@ -37,7 +41,9 @@ public class AuthenticationController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var response = await authenticationService.LoginAsync(request);
-        return Ok(response);
+        return response.Match<IActionResult>(
+            success => Ok(response.Value),
+            error => error.ToActionResult());
     }
 
     [HttpPost("changePassword")]
@@ -50,8 +56,9 @@ public class AuthenticationController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var user = await authenticationService.ChangePasswordAsync(request, AccessToken);
-        if (user) return Ok("Password changed successfully");
-        return BadRequest("Failed to change password. Please try again.");
+        return user.Match<IActionResult>(
+            success => Ok(new { message = "Password changed successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpDelete("deleteUser")]
@@ -59,8 +66,8 @@ public class AuthenticationController(
     public async Task<IActionResult> DeleteUser()
     {
         var user = await authenticationService.DeleteUserAsync(AccessToken);
-        if (user)
-            return Ok("User deleted successfully");
-        return BadRequest("Failed to delete user. Please try again.");
+        return user.Match<IActionResult>(
+            success => Ok(new { message = "User deleted successfully" }),
+            error => error.ToActionResult());
     }
 }

@@ -1,11 +1,15 @@
+using System.Diagnostics;
 using API.Handlers;
 using API.Helpers;
 using Domain.Options;
+using Microsoft.AspNetCore.ResponseCompression;
+using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
+using ExportProcessorType = OpenTelemetry.ExportProcessorType;
 
 namespace API.Extensions;
 
@@ -33,6 +37,14 @@ public static class WebApplicationBuilderExtension
                 {
                     opt.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/traces");
                     opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    opt.ExportProcessorType = ExportProcessorType.Batch;
+                    opt.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>
+                    {
+                        MaxQueueSize = 1000,
+                        ExporterTimeoutMilliseconds = 500, // Shorter timeout
+                        MaxExportBatchSize = 100,
+                        ScheduledDelayMilliseconds = 1000
+                    };
                 });
             })
             .WithMetrics(metrics =>
@@ -48,6 +60,13 @@ public static class WebApplicationBuilderExtension
 
         // Registering the CORS policy
         builder.Services.AddCors();
+
+        // Registering the Response Compression
+        builder.Services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.Providers.Add<GzipCompressionProvider>();
+        });
 
         // Registering the exception handler
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

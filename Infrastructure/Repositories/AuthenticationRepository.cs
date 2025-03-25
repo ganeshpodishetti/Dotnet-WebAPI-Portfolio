@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
+using Domain.Common;
 using Domain.Entities;
+using Domain.Errors;
 using Domain.Exceptions;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -43,11 +45,12 @@ internal partial class AuthenticationRepository(UserManager<User> userManager)
     }
 
     // register a new user
-    public async Task<User> RegisterUserAsync(User user, string password)
+    public async Task<Result<User>> RegisterUserAsync(User user, string password)
     {
         // Check for special characters and spaces
         if (user.UserName != SanitizeName(user.UserName!))
-            throw new ArgumentException("Username cannot contain special characters or spaces");
+            return Result.Failure<User>(Error.Failure("username_invalid",
+                "Username cannot contain special characters or spaces"));
 
         // Check if username exists
         if (await userManager.FindByNameAsync(user.UserName) != null)

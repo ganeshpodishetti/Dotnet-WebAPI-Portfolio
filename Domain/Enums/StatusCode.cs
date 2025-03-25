@@ -6,9 +6,10 @@ public enum StatusCode
     NotFound = 404,
     Validation = 422,
     Conflict = 409,
-    AccessUnAuthorized = 401,
-    AccessForbidden = 403,
+    UnAuthorized = 401,
+    Forbidden = 403,
     ServerError = 500,
     ServiceUnavailable = 503,
-    Success = 200
+    Success = 200,
+    BadGateway = 502
 }
