@@ -19,7 +19,8 @@ public class AuthenticationService(
     public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request)
     {
         var existingUser = await authenticationRepository.FindByEmailAsync(request.Email);
-        if (existingUser != null) throw new UserAlreadyExistsException(request.Email, true);
+        if (existingUser is not null)
+            throw new UserAlreadyExistsException(existingUser.Email!);
 
         var user = mapper.Map<User>(request);
 

@@ -19,7 +19,6 @@ public class FormatValidation : IFormatValidation
             })
             .ToList();
 
-        // For teaching purposes, return both formats to show the difference
         return new
         {
             Title = "Validation Failed",

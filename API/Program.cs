@@ -2,9 +2,21 @@ using API.Extensions;
 using Application.Extensions;
 using Infrastructure.Extension;
 using Scalar.AspNetCore;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    // .WriteTo.OpenTelemetry(options =>
+    // {
+    //     options.Endpoint = "http://localhost:5341/ingest/otlp/v1/traces";
+    //     options.Protocol = OtlpProtocol.HttpProtobuf;
+    // })
+    .CreateLogger();
 
 try
 {
+    Log.Information("Starting up the application...");
+
     var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
@@ -35,6 +47,13 @@ try
             });
     }
 
+    app.UseSerilogRequestLogging();
+
+    app.UseCors(policyBuilder => policyBuilder
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
     app.UseStatusCodePages();
     app.UseExceptionHandler(_ => { });
     app.UseHttpsRedirection();
@@ -47,6 +66,9 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine(ex.Message);
-    throw new Exception("An error occurred while start-up the application.");
+    Log.Fatal(ex, "An error occurred while start-up the application.");
+}
+finally
+{
+    Log.CloseAndFlush();
 }

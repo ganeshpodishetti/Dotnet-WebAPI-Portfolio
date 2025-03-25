@@ -70,6 +70,7 @@ public static class JwtAuthenticationExtension
                 };
             });
         services.AddAuthorizationBuilder()
+            //.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"))
             .SetDefaultPolicy(new AuthorizationPolicyBuilder()
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
