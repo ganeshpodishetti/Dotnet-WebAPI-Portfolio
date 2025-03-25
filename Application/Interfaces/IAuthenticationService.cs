@@ -1,11 +1,12 @@
 using Application.DTOs.Authentication;
+using Domain.Common;
 
 namespace Application.Interfaces;
 
 public interface IAuthenticationService
 {
-    Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto request);
-    Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
-    Task<bool> ChangePasswordAsync(ChangePasswordDto request, string accessToken);
-    Task<bool> DeleteUserAsync(string accessToken);
+    Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto request);
+    Task<Result<LoginResponseDto>> LoginAsync(LoginRequestDto request);
+    Task<Result<bool>> ChangePasswordAsync(ChangePasswordDto request, string accessToken);
+    Task<Result<bool>> DeleteUserAsync(string accessToken);
 }

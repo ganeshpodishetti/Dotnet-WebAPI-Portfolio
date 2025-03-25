@@ -1,10 +1,11 @@
+using Domain.Common;
 using Domain.Entities;
 
 namespace Domain.Interfaces;
 
 public interface IAuthenticationRepository
 {
-    Task<User> RegisterUserAsync(User request, string password);
+    Task<Result<User>> RegisterUserAsync(User request, string password);
     Task<User> UpdateUserAsync(User user);
     Task<bool> ValidateCredentialsAsync(string email, string password);
     Task<User?> FindByEmailAsync(string email);

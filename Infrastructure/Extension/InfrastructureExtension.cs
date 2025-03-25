@@ -1,5 +1,6 @@
 using Domain.Interfaces;
 using Domain.UnitOfWork;
+using Infrastructure.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,10 @@ public static class InfrastructureExtension
         services.AddScoped<ISocialLinkRepository, SocialLinkRepository>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+        // Register health checks
+        services.AddHealthChecks()
+            .AddDbContextCheck<PortfolioDbContext>("Database");
 
         return services;
     }

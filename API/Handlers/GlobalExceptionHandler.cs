@@ -11,23 +11,20 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
     {
-        var (statusCode, message) = GetExceptionDetails(exception);
+        logger.LogError(exception,
+            "Exception occurred: {ErrorType} {Message}",
+            exception.GetType().Name,
+            exception.Message);
+
         var problemDetails = new ProblemDetails
         {
-            Status = (int)statusCode,
-            Title = GetTitle(statusCode),
-            Detail = message
-            //Instance = httpContext.Request.Path
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "An error occurred",
+            Detail = exception.Message,
+            Instance = httpContext.Request.Path
         };
 
-        logger.LogError(
-            exception,
-            "An error occurred: {ErrorType} {Message}",
-            exception.GetType().Name,
-            exception.Message
-        );
-
-        httpContext.Response.StatusCode = (int)statusCode;
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
         return true;
     }

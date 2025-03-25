@@ -5,54 +5,54 @@ namespace Domain.Errors;
 public class Error
 {
     private Error(
-        string code,
+        string title,
         string description,
         StatusCode statusCode
     )
     {
-        Code = code;
+        Title = title;
         Description = description;
-        ErrorType = statusCode;
+        StatusCode = statusCode;
     }
 
-    public string Code { get; }
+    public string Title { get; }
 
     public string Description { get; }
 
-    public StatusCode ErrorType { get; }
+    public StatusCode StatusCode { get; }
 
-    public static Error None(string code, string description, StatusCode errorType)
+    public static Error None()
     {
-        return new Error(code, description, errorType);
+        return new Error(string.Empty, string.Empty, StatusCode.Success);
     }
 
-    public static Error Failure(string code, string description)
+    public static Error Failure(string title, string description)
     {
-        return new Error(code, description, StatusCode.Failure);
+        return new Error(title, description, StatusCode.Failure);
     }
 
-    public static Error NotFound(string code, string description)
+    public static Error NotFound(string title, string description)
     {
-        return new Error(code, description, StatusCode.NotFound);
+        return new Error(title, description, StatusCode.NotFound);
     }
 
-    public static Error Validation(string code, string description)
+    public static Error Validation(string title, string description)
     {
-        return new Error(code, description, StatusCode.Validation);
+        return new Error(title, description, StatusCode.Validation);
     }
 
-    public static Error Conflict(string code, string description)
+    public static Error Conflict(string title, string description)
     {
-        return new Error(code, description, StatusCode.Conflict);
+        return new Error(title, description, StatusCode.Conflict);
     }
 
-    public static Error AccessUnAuthorized(string code, string description)
+    public static Error UnAuthorized(string title, string description)
     {
-        return new Error(code, description, StatusCode.AccessUnAuthorized);
+        return new Error(title, description, StatusCode.UnAuthorized);
     }
 
-    public static Error AccessForbidden(string code, string description)
+    public static Error Forbidden(string code, string description)
     {
-        return new Error(code, description, StatusCode.AccessForbidden);
+        return new Error(code, description, StatusCode.Forbidden);
     }
 }
