@@ -60,7 +60,18 @@ public static class WebApplicationBuilderExtension
             });
 
         // Registering the CORS policy
-        builder.Services.AddCors();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("myPolicyName",
+                policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            options.AddPolicy("AllowOnlySomeOrigins",
+                policy => { policy.WithOrigins("http://localhost:3000/"); });
+        });
 
         // Registering the Response Compression
         builder.Services.AddResponseCompression(options =>
