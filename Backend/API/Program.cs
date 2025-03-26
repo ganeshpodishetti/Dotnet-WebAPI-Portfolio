@@ -63,9 +63,12 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "An error occurred while start-up the application.");
+    // Log fatal error
+    Log.Fatal(ex, "Application start-up failed");
 }
 finally
 {
+    // Ensure to flush and close the log
+    Log.Information("Shut down complete");
     Log.CloseAndFlush();
 }
