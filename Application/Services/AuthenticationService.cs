@@ -20,6 +20,10 @@ public partial class AuthenticationService(
     // register a new user
     public async Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto request)
     {
+        // Check for special characters and spaces
+        if (request.UserName != SanitizeName(request.UserName!))
+            return Result.Failure<RegisterResponseDto>(UserErrors.InvalidUserName(request.UserName));
+
         var existingUser = await authenticationRepository.FindByEmailAsync(request.Email);
         if (existingUser is not null)
             return Result.Failure<RegisterResponseDto>(UserErrors.UserAlreadyExists(existingUser.Email!));
@@ -28,18 +32,25 @@ public partial class AuthenticationService(
 
         var createdUser = await authenticationRepository.RegisterUserAsync(user, request.Password);
 
-        var result = mapper.Map<Result<RegisterResponseDto>>(createdUser);
-        return result;
+        var result = mapper.Map<RegisterResponseDto>(user);
+
+        return createdUser.Match(
+            _ => Result.Success(result),
+            Result.Failure<RegisterResponseDto>
+        );
     }
 
     // login a user
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginRequestDto request)
     {
+        var user = await authenticationRepository.FindByEmailAsync(request.Email);
+        if (user is null)
+            return Result.Failure<LoginResponseDto>(UserErrors.UserNotFound(request.Email));
+
         var validateUser = await authenticationRepository.ValidateCredentialsAsync(request.Email, request.Password);
         if (!validateUser)
             return Result.Failure<LoginResponseDto>(UserErrors.LoginFailed(request.Email));
 
-        var user = await authenticationRepository.FindByEmailAsync(request.Email);
         var token = await jwtTokenService.GenerateJwtToken(user!);
         var refreshToken = jwtTokenService.GenerateRefreshToken();
 
@@ -59,9 +70,7 @@ public partial class AuthenticationService(
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var success = await authenticationRepository.ChangePasswordAsync(userId.ToString(), request.CurrentPassword,
             request.NewPassword);
-        return success
-            ? Result.Success(true)
-            : Result.Failure<bool>(Error.Failure("change_password_failed", "Failed to change password"));
+        return success;
     }
 
     // delete a user
@@ -69,9 +78,7 @@ public partial class AuthenticationService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var success = await authenticationRepository.DeleteUserAsync(userId.ToString());
-        return success
-            ? Result.Success(true)
-            : Result.Failure<bool>(Error.Failure("delete_user_failed", "Failed to delete user"));
+        return success;
     }
 
     // Find a user by username

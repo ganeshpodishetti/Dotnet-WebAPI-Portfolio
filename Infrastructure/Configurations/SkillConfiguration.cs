@@ -15,5 +15,10 @@ public class SkillConfiguration : IEntityTypeConfiguration<Skill>
         builder.Property(t => t.SkillsTypes)
             .HasMaxLength(2500)
             .IsRequired();
+
+        builder.HasOne<User>()
+            .WithMany(u => u.Skills)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

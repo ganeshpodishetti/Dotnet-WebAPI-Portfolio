@@ -32,5 +32,10 @@ public class EducationConfiguration : IEntityTypeConfiguration<Education>
 
         builder.Property(t => t.Description)
             .HasMaxLength(2500);
+
+        builder.HasOne<User>()
+            .WithMany(u => u.Educations)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

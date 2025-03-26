@@ -10,7 +10,7 @@ internal class SkillRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<List<Skill>?> GetAllByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<Skill>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Skills
             .Where(e => e.UserId == userId)

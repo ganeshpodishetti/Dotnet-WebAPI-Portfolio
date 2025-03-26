@@ -1,6 +1,8 @@
+using API.Extensions;
 using API.Helpers;
 using Application.DTOs.Message;
 using Application.Interfaces;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,14 +24,18 @@ public class MessageController(
     public async Task<IActionResult> GetMessages()
     {
         var result = await messageService.GetMessagesByUserIdAsync(AccessToken);
-        return Ok(result);
+        return result.Match(
+            success => Ok(result.Value),
+            error => error.ToActionResult());
     }
 
     [HttpGet("unreadMessages")]
     public async Task<IActionResult> GetUnReadMessages()
     {
         var result = await messageService.GetNumberOfUnread(AccessToken);
-        return Ok(result);
+        return result.Match(
+            success => Ok(result.Value),
+            error => error.ToActionResult());
     }
 
     [HttpPost]
@@ -41,7 +47,9 @@ public class MessageController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await messageService.AddMessageAsync(request, AccessToken);
-        return Ok("Message sent successfully.");
+        return result.Match(
+            success => Ok(new { message = "Message sent successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpPatch("{id:guid}")]
@@ -52,13 +60,17 @@ public class MessageController(
         if (!validationResult.IsValid)
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
         var result = await messageService.UpdateMessageAsync(request, id, AccessToken);
-        return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Message updated successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteMessage([FromRoute] Guid id)
     {
         var result = await messageService.DeleteMessageAsync(id, AccessToken);
-        return Ok("Message deleted successfully.");
+        return result.Match(
+            success => Ok(new { message = "Message deleted successfully" }),
+            error => error.ToActionResult());
     }
 }

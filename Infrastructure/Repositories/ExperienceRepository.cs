@@ -10,7 +10,7 @@ internal class ExperienceRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<List<Experience>?> GetAllByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<Experience>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Experiences
             .Where(e => e.UserId == userId)

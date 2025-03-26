@@ -1,8 +1,9 @@
 using Application.DTOs.User;
 using Application.Interfaces;
 using AutoMapper;
-using Domain.Entities;
-using Domain.Exceptions;
+using Domain.Common;
+using Domain.Enums;
+using Domain.Errors;
 using Domain.Interfaces;
 using Domain.UnitOfWork;
 
@@ -12,30 +13,34 @@ public class UserServices(IUnitOfWork unitOfWork, IMapper mapper, IJwtTokenServi
     : IUserServices
 {
     // Get user profile by ID
-    public async Task<UserResponseDto?> GetProfileByIdAsync(string accessToken)
+    public async Task<Result<UserResponseDto?>> GetProfileByIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var user = await unitOfWork.UserRepository.GetUserWithDetailsAsync(userId)
-                   ?? throw new NotFoundException(nameof(User), userId.ToString());
+        var user = await unitOfWork.UserRepository.GetUserWithDetailsAsync(userId);
+        if (user is null)
+            return Result.Failure<UserResponseDto?>(new GeneralError("user_doesn't_exists",
+                "User does not exist", StatusCode.NotFound));
 
-        return mapper.Map<UserResponseDto>(user);
+        var responseDto = mapper.Map<UserResponseDto>(user);
+        return Result<UserResponseDto?>.Success(responseDto);
     }
 
     // Update user profile
-    public async Task<bool> UpdateProfileAsync(UserRequestDto userRequestDto, string accessToken)
+    public async Task<Result<bool>> UpdateProfileAsync(UserRequestDto userRequestDto, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var toUpdate = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (toUpdate is null)
-            throw new NotFoundException(nameof(toUpdate), userId.ToString());
+            return Result.Failure<bool>(new GeneralError("user_doesn't_exists",
+                "User does not exist to update profile", StatusCode.NotFound));
 
         toUpdate.UpdatedAt = DateTime.UtcNow;
-
         mapper.Map(userRequestDto, toUpdate.AboutMe);
+
         var result = await unitOfWork.UserRepository.UpdateAsync(toUpdate);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(true);
     }
 }

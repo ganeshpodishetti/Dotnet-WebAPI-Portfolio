@@ -2,6 +2,7 @@ using API.Extensions;
 using API.Helpers;
 using Application.DTOs.Authentication;
 using Application.Interfaces;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ public class AuthenticationController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var response = await authenticationService.RegisterAsync(request);
-        return response.Match<IActionResult>(
+        return response.Match(
             success => Ok(response.Value),
             error => error.ToActionResult()
         );
@@ -41,7 +42,7 @@ public class AuthenticationController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var response = await authenticationService.LoginAsync(request);
-        return response.Match<IActionResult>(
+        return response.Match(
             success => Ok(response.Value),
             error => error.ToActionResult());
     }
@@ -56,7 +57,7 @@ public class AuthenticationController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var user = await authenticationService.ChangePasswordAsync(request, AccessToken);
-        return user.Match<IActionResult>(
+        return user.Match(
             success => Ok(new { message = "Password changed successfully" }),
             error => error.ToActionResult());
     }
@@ -66,7 +67,7 @@ public class AuthenticationController(
     public async Task<IActionResult> DeleteUser()
     {
         var user = await authenticationService.DeleteUserAsync(AccessToken);
-        return user.Match<IActionResult>(
+        return user.Match(
             success => Ok(new { message = "User deleted successfully" }),
             error => error.ToActionResult());
     }

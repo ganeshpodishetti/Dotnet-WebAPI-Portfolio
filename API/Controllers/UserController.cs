@@ -1,6 +1,8 @@
+using API.Extensions;
 using API.Helpers;
 using Application.DTOs.User;
 using Application.Interfaces;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +24,9 @@ public class UserController(
     public async Task<IActionResult> GetProfileById()
     {
         var result = await userServices.GetProfileByIdAsync(AccessToken);
-        return Ok(result);
+        return result.Match(
+            success => Ok(result.Value),
+            error => error.ToActionResult());
     }
 
     // PUT: api/user/UpdateUserProfile
@@ -35,6 +39,8 @@ public class UserController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await userServices.UpdateProfileAsync(request, AccessToken);
-        return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Profile updated successfully" }),
+            error => error.ToActionResult());
     }
 }

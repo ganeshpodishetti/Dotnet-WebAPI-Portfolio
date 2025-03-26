@@ -1,6 +1,8 @@
+using API.Extensions;
 using API.Helpers;
 using Application.DTOs.Project;
 using Application.Interfaces;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +23,10 @@ public class ProjectController(
     public async Task<IActionResult> GetProjectsByUserId()
     {
         var result = await projectService.GetProjectsByUserIdAsync(AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(result.Value),
+            error => error.ToActionResult());
     }
 
     [HttpPost]
@@ -33,7 +38,10 @@ public class ProjectController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await projectService.AddProjectAsync(request, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Project added successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpPatch("{id:guid}")]
@@ -45,13 +53,19 @@ public class ProjectController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await projectService.UpdateProjectAsync(request, id, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Project edited successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteProject([FromRoute] Guid id)
     {
         var result = await projectService.DeleteProjectAsync(id, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Project deleted successfully" }),
+            error => error.ToActionResult());
     }
 }
