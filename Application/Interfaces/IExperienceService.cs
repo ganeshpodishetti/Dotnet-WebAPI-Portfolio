@@ -1,11 +1,12 @@
 using Application.DTOs.Experience;
+using Domain.Common;
 
 namespace Application.Interfaces;
 
 public interface IExperienceService
 {
-    Task<List<ExperienceResponseDto>> GetExperiencesByUserIdAsync(string accessToken);
-    Task<bool> AddExperienceAsync(ExperienceRequestDto experienceRequestDto, string accessToken);
-    Task<bool> UpdateExperienceAsync(ExperienceRequestDto experienceRequestDto, Guid id, string accessToken);
-    Task<bool> DeleteExperienceAsync(Guid id, string accessToken);
+    Task<Result<IEnumerable<ExperienceResponseDto>>> GetExperiencesByUserIdAsync(string accessToken);
+    Task<Result<bool>> AddExperienceAsync(ExperienceRequestDto experienceRequestDto, string accessToken);
+    Task<Result<bool>> UpdateExperienceAsync(ExperienceRequestDto experienceRequestDto, Guid id, string accessToken);
+    Task<Result<bool>> DeleteExperienceAsync(Guid id, string accessToken);
 }

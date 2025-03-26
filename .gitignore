@@ -4,4 +4,3 @@ obj/
 .vscode/
 Dotnet-WebAPI-Portfolio.sln.DotSettings.user
 .qodo
-Infrastructure/Migrations

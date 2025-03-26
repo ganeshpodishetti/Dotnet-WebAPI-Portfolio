@@ -1,6 +1,8 @@
+using API.Extensions;
 using API.Helpers;
 using Application.DTOs.Experience;
 using Application.Interfaces;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +23,10 @@ public class ExperienceController(
     public async Task<IActionResult> GetExperiencesByUserId()
     {
         var result = await experienceService.GetExperiencesByUserIdAsync(AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(result.Value),
+            error => error.ToActionResult());
     }
 
     [HttpPost]
@@ -32,7 +37,10 @@ public class ExperienceController(
         if (!validationResult.IsValid)
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
         var result = await experienceService.AddExperienceAsync(request, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Experience added successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpPatch("{id:guid}")]
@@ -44,13 +52,19 @@ public class ExperienceController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await experienceService.UpdateExperienceAsync(request, id, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Experience edited successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteExperienceAsync([FromRoute] Guid id)
     {
         var result = await experienceService.DeleteExperienceAsync(id, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Experience deleted successfully" }),
+            error => error.ToActionResult());
     }
 }

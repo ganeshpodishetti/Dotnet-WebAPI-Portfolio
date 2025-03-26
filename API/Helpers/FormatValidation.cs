@@ -11,7 +11,7 @@ public class FormatValidation : IFormatValidation
 {
     public object FormatValidationErrors(ValidationResult validationResult)
     {
-        var detailedErrors = validationResult.Errors
+        var errors = validationResult.Errors
             .Select(e => new
             {
                 Field = e.PropertyName,
@@ -23,7 +23,7 @@ public class FormatValidation : IFormatValidation
         {
             Title = "Validation Failed",
             Status = StatusCodes.Status400BadRequest,
-            DetailedErrors = detailedErrors
+            Errors = errors
         };
     }
 }

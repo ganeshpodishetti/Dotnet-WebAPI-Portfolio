@@ -1,3 +1,4 @@
+using System.Net;
 using Domain.Enums;
 using Domain.Errors;
 using Microsoft.AspNetCore.Mvc;
@@ -6,19 +7,27 @@ namespace API.Extensions;
 
 public static class ErrorExtensions
 {
-    public static IActionResult ToActionResult(this Error error)
+    public static IActionResult ToActionResult(this BaseError error)
     {
+        var problemDetails = new ProblemDetails
+        {
+            Title = error.Title,
+            Status = (int)error.StatusCode,
+            Detail = error.Description
+        };
+
         // Map different error types to appropriate status codes
         return error.StatusCode switch
         {
-            StatusCode.Validation => new BadRequestObjectResult(error),
-            StatusCode.NotFound => new NotFoundObjectResult(error),
-            StatusCode.UnAuthorized => new UnauthorizedObjectResult(error),
-            StatusCode.Forbidden => new ForbidResult(),
-            StatusCode.Conflict => new ConflictObjectResult(error),
-            StatusCode.Failure => new BadRequestObjectResult(error),
-            StatusCode.ServerError => new ObjectResult(error) { StatusCode = 500 },
-            _ => new ObjectResult(error) { StatusCode = 500 } // Default to 500
+            StatusCode.NotFound => new NotFoundObjectResult(problemDetails)
+                { StatusCode = (int)HttpStatusCode.NotFound },
+            StatusCode.Conflict => new ConflictObjectResult(problemDetails)
+                { StatusCode = (int)HttpStatusCode.Conflict },
+            StatusCode.UnAuthorized => new ObjectResult(problemDetails)
+                { StatusCode = (int)HttpStatusCode.Unauthorized },
+            StatusCode.Failure => new BadRequestObjectResult(problemDetails)
+                { StatusCode = (int)HttpStatusCode.BadRequest },
+            _ => new BadRequestObjectResult(problemDetails) { StatusCode = (int)HttpStatusCode.BadRequest }
         };
     }
 }

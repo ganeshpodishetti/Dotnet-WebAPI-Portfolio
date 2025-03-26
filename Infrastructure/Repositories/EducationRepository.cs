@@ -10,7 +10,7 @@ internal class EducationRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<List<Education>?> GetAllByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<Education>?> GetAllByUserIdAsync(Guid userId)
     {
         return await _context.Educations
             .Where(e => e.UserId == userId)

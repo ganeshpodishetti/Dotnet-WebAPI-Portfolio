@@ -1,5 +1,3 @@
-using System.Net;
-using Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,45 +14,23 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             exception.GetType().Name,
             exception.Message);
 
+        var status = exception switch
+        {
+            ArgumentException => StatusCodes.Status400BadRequest,
+            _ => StatusCodes.Status500InternalServerError
+        };
+        httpContext.Response.StatusCode = status;
+
         var problemDetails = new ProblemDetails
         {
-            Status = StatusCodes.Status500InternalServerError,
+            Status = status,
             Title = "An error occurred",
-            Detail = exception.Message,
-            Instance = httpContext.Request.Path
+            Type = exception.GetType().Name,
+            Detail = exception.Message
         };
 
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+
         return true;
-    }
-
-    // This method is used to get the status code and message of the exception.
-    private static (HttpStatusCode statusCode, string message) GetExceptionDetails(Exception exception)
-    {
-        return exception switch
-        {
-            LoginFailedException => (HttpStatusCode.Unauthorized, exception.Message),
-            UserAlreadyExistsException => (HttpStatusCode.Conflict, exception.Message),
-            RegistrationFailedException => (HttpStatusCode.BadRequest, exception.Message),
-            NotFoundException => (HttpStatusCode.NotFound, exception.Message),
-            ForbidException => (HttpStatusCode.Forbidden, exception.Message),
-            PasswordViolationException => (HttpStatusCode.BadRequest, exception.Message),
-            _ => (HttpStatusCode.InternalServerError, $"An unexpected error occurred: {exception.Message}")
-        };
-    }
-
-    // This method is used to get the title of the exception.
-    private static string GetTitle(HttpStatusCode statusCode)
-    {
-        return statusCode switch
-        {
-            HttpStatusCode.NotFound => "Resource Not Found",
-            HttpStatusCode.BadRequest => "Bad Request",
-            HttpStatusCode.Unauthorized => "Unauthorized",
-            HttpStatusCode.Forbidden => "Forbidden",
-            HttpStatusCode.Conflict => "Conflict",
-            _ => "An error occurred"
-        };
     }
 }

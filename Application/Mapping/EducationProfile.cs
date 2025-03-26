@@ -13,6 +13,7 @@ public class EducationProfile : Profile
             .ForMember(dest => dest.UpdatedAtUtc, opt =>
                 opt.MapFrom(src => src.UpdatedAt.ToString()));
 
+        //CreateMap<Result<Education>, Result<EducationResponseDto>>();
         // Dtos to Domain
         CreateMap<EducationRequestDto, Education>();
     }

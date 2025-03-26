@@ -1,6 +1,8 @@
+using API.Extensions;
 using API.Helpers;
 using Application.DTOs.SocialLink;
 using Application.Interfaces;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController]
-[Route("api/social-link")]
+[Route("api/socialLink")]
 [Authorize]
 public class SocialLinkController(
     ISocialLinkService socialLinkService,
@@ -22,7 +24,10 @@ public class SocialLinkController(
     public async Task<IActionResult> GetSocialLinksByUserId()
     {
         var result = await socialLinkService.GetSocialLinksByUserIdAsync(AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(result.Value),
+            error => error.ToActionResult());
     }
 
     [HttpPost]
@@ -34,7 +39,10 @@ public class SocialLinkController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await socialLinkService.AddSocialLinkAsync(request, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Social link added successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpPatch("{id:guid}")]
@@ -46,13 +54,19 @@ public class SocialLinkController(
             return BadRequest(formatValidation.FormatValidationErrors(validationResult));
 
         var result = await socialLinkService.UpdateSocialLinkAsync(request, id, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Social link edited successfully" }),
+            error => error.ToActionResult());
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteSocialLinks([FromRoute] Guid id)
     {
         var result = await socialLinkService.DeleteSocialLinkAsync(id, AccessToken);
-        return Ok(result);
+        //return Ok(result);
+        return result.Match(
+            success => Ok(new { message = "Social link deleted successfully" }),
+            error => error.ToActionResult());
     }
 }

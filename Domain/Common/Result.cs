@@ -14,7 +14,7 @@ public class Result<TValue>
         Error = null;
     }
 
-    private Result(Error error)
+    private Result(BaseError error)
     {
         IsSuccess = false;
         _value = default;
@@ -23,7 +23,7 @@ public class Result<TValue>
 
     public bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
-    public Error? Error { get; }
+    public BaseError? Error { get; }
 
     public TValue Value => IsSuccess
         ? _value!
@@ -34,7 +34,7 @@ public class Result<TValue>
         return new Result<TValue>(value);
     }
 
-    public static Result<TValue> Failure(Error error)
+    public static Result<TValue> Failure(BaseError error)
     {
         return new Result<TValue>(error);
     }
@@ -44,23 +44,16 @@ public class Result<TValue>
         return Success(value);
     }
 
-    public static implicit operator Result<TValue>(Error error)
+    public static implicit operator Result<TValue>(BaseError error)
     {
         return Failure(error);
-    }
-
-    public TResult Match<TResult>(
-        Func<TValue, TResult> onSuccess,
-        Func<Error, TResult> onFailure)
-    {
-        return IsSuccess ? onSuccess(_value!) : onFailure(Error!);
     }
 }
 
 // This is a non-generic result class that can be used to return an error.
 public class Result
 {
-    private Result(bool isSuccess, Error? error)
+    private Result(bool isSuccess, BaseError? error)
     {
         IsSuccess = isSuccess;
         Error = error;
@@ -68,19 +61,19 @@ public class Result
 
     private bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
-    public Error? Error { get; }
+    public BaseError? Error { get; }
 
     public static Result Success()
     {
         return new Result(true, null);
     }
 
-    private static Result Failure(Error error)
+    private static Result Failure(BaseError error)
     {
         return new Result(false, error);
     }
 
-    public static implicit operator Result(Error error)
+    public static implicit operator Result(BaseError error)
     {
         return Failure(error);
     }
@@ -90,7 +83,7 @@ public class Result
         return Result<TValue>.Success(value);
     }
 
-    public static Result<TValue> Failure<TValue>(Error error)
+    public static Result<TValue> Failure<TValue>(BaseError error)
     {
         return Result<TValue>.Failure(error);
     }

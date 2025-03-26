@@ -1,24 +1,22 @@
-using System.Text.RegularExpressions;
 using Domain.Common;
 using Domain.Entities;
-using Domain.Errors;
-using Domain.Exceptions;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using NotFoundException = Domain.Exceptions.NotFoundException;
+using UserErrors = Domain.Errors.UserErrors;
 
 namespace Infrastructure.Repositories;
 
-internal partial class AuthenticationRepository(UserManager<User> userManager)
+internal class AuthenticationRepository(UserManager<User> userManager)
     : IAuthenticationRepository
 {
     // login a user
-    public async Task<User> UpdateUserAsync(User user)
+    public async Task<Result<bool>> UpdateUserAsync(User user)
     {
         var result = await userManager.UpdateAsync(user);
-        if (result.Succeeded) return user;
+        if (result.Succeeded) return Result.Success(true);
+
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-        throw new Exception($"Failed to update user: {errors}");
+        return Result<bool>.Failure(UserErrors.FailedToUpdateUser(errors));
     }
 
     // Validate user credentials
@@ -34,54 +32,47 @@ internal partial class AuthenticationRepository(UserManager<User> userManager)
         return await userManager.FindByEmailAsync(email);
     }
 
-    public async Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+    public async Task<Result<bool>> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
     {
         var user = await userManager.FindByIdAsync(userId);
-        if (user == null)
-            throw new NotFoundException(nameof(User), userId);
+        if (user is null)
+            return Result<bool>.Failure(UserErrors.UserNotFound(userId));
 
         var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
-        return result.Succeeded;
+        if (result.Succeeded) return Result.Success(true);
+
+        var enumerator = result.Errors.First().Description;
+        return Result.Failure<bool>(UserErrors.FailedToChangePassword(enumerator));
     }
 
     // register a new user
     public async Task<Result<User>> RegisterUserAsync(User user, string password)
     {
-        // Check for special characters and spaces
-        if (user.UserName != SanitizeName(user.UserName!))
-            return Result.Failure<User>(Error.Failure("username_invalid",
-                "Username cannot contain special characters or spaces"));
-
         // Check if username exists
-        if (await userManager.FindByNameAsync(user.UserName) != null)
-            throw new UserAlreadyExistsException(user.UserName);
+        if (await userManager.FindByNameAsync(user.UserName!) != null)
+            return Result.Failure<User>(UserErrors.UserAlreadyExists(user.UserName!));
 
-        user.UserName = user.UserName.ToLower();
+        user.UserName = user.UserName!.ToLower();
         user.PasswordHash = userManager.PasswordHasher.HashPassword(user, password);
+
         var result = await userManager.CreateAsync(user, password);
-        if (result.Succeeded) return user;
+        if (result.Succeeded) return Result.Success(user);
+
         var enumerator = result.Errors.First().Description;
-        throw new PasswordViolationException(enumerator);
+        return Result.Failure<User>(UserErrors.FailedToRegisterUser(enumerator));
     }
 
     // Delete a user
-    public async Task<bool> DeleteUserAsync(string userId)
+    public async Task<Result<bool>> DeleteUserAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
-        if (user == null)
-            throw new NotFoundException(nameof(User), userId);
+        if (user is null)
+            return Result<bool>.Failure(UserErrors.UserNotFound(userId));
+
         var result = await userManager.DeleteAsync(user);
-        return result.Succeeded;
-    }
+        if (result.Succeeded) return Result.Success(true);
 
-    // Find a user by username
-    private static string SanitizeName(string name)
-    {
-        // Remove special characters and spaces
-        return MyRegex().Replace(name, "");
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        return Result<bool>.Failure(UserErrors.FailedToDeleteUser(errors));
     }
-
-    // Regex for special characters and spaces
-    [GeneratedRegex(@"[^a-zA-Z0-9.]")]
-    private static partial Regex MyRegex();
 }

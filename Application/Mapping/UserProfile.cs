@@ -1,7 +1,6 @@
 using Application.DTOs.Authentication;
 using Application.DTOs.User;
 using AutoMapper;
-using Domain.Common;
 using Domain.Entities;
 
 namespace Application.Mapping;
@@ -26,10 +25,10 @@ public class UserProfile : Profile
                 opt.MapFrom(src => src.AboutMe.Country))
             .ForMember(dest => dest.City, opt =>
                 opt.MapFrom(src => src.AboutMe.City));
-        CreateMap<Result<User>, Result<UserResponseDto>>();
+        //CreateMap<Result<User>, Result<UserResponseDto>>();
 
         CreateMap<User, LoginResponseDto>();
-        CreateMap<Result<User>, Result<LoginResponseDto>>();
+        //CreateMap<Result<User>, Result<LoginResponseDto>>();
 
         CreateMap<User, RegisterResponseDto>()
             .ForMember(dest => dest.UserId, opt =>
@@ -38,7 +37,7 @@ public class UserProfile : Profile
                 opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.CreateAt, opt =>
                 opt.MapFrom(src => src.CreatedAt.ToString("yyyy-M-d HH:mm:ss")));
-        CreateMap<Result<User>, Result<RegisterResponseDto>>();
+        //CreateMap<Result<User>, Result<RegisterResponseDto>>();
 
         // Dtos to Domain
         CreateMap<LoginRequestDto, User>();
@@ -65,6 +64,6 @@ public class UserProfile : Profile
 
         // Reverse mapping
         CreateMap<AboutMe, UserResponseDto>().ReverseMap();
-        CreateMap<Result<AboutMe>, Result<UserResponseDto>>().ReverseMap();
+        //CreateMap<Result<AboutMe>, Result<UserResponseDto>>().ReverseMap();
     }
 }

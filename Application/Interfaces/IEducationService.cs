@@ -1,11 +1,12 @@
 using Application.DTOs.Education;
+using Domain.Common;
 
 namespace Application.Interfaces;
 
 public interface IEducationService
 {
-    Task<bool> AddEducationAsync(EducationRequestDto educationDto, string accessToken);
-    Task<bool> UpdateEducationAsync(EducationRequestDto educationDto, Guid id, string accessToken);
-    Task<bool> DeleteEducationAsync(Guid id, string accessToken);
-    Task<List<EducationResponseDto>> GetEducationsByIdAsync(string accessToken);
+    Task<Result<bool>> AddEducationAsync(EducationRequestDto educationDto, string accessToken);
+    Task<Result<bool>> UpdateEducationAsync(EducationRequestDto educationDto, Guid id, string accessToken);
+    Task<Result<bool>> DeleteEducationAsync(Guid id, string accessToken);
+    Task<Result<IEnumerable<EducationResponseDto>>> GetEducationsByIdAsync(string accessToken);
 }

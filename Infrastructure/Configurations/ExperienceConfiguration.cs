@@ -24,9 +24,14 @@ public class ExperienceConfiguration : IEntityTypeConfiguration<Experience>
 
         builder.Property(t => t.Location)
             .HasMaxLength(100);
-        
+
         builder.Property(t => t.Title)
             .HasMaxLength(100)
             .IsRequired();
+
+        builder.HasOne<User>()
+            .WithMany(u => u.Experiences)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

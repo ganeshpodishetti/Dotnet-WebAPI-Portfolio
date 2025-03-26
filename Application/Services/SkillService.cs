@@ -1,7 +1,10 @@
 using Application.DTOs.Skill;
 using Application.Interfaces;
 using AutoMapper;
+using Domain.Common;
 using Domain.Entities;
+using Domain.Enums;
+using Domain.Errors;
 using Domain.Interfaces;
 using Domain.UnitOfWork;
 
@@ -13,39 +16,48 @@ public class SkillService(
     IJwtTokenService jwtTokenService) : ISkillService
 {
     // get skills
-    public async Task<List<SkillResponseDto>> GetAllSkillsByUserIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<SkillResponseDto>>> GetAllSkillsByUserIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var skills = await unitOfWork.SkillRepository.GetAllByUserIdAsync(userId);
-        var result = mapper.Map<List<SkillResponseDto>>(skills);
-        return result;
+        if (skills == null)
+            return Result<IEnumerable<SkillResponseDto>>.Failure(new GeneralError("user_doesn't_exists",
+                "User does not exist to get skills.",
+                StatusCode.NotFound));
+        var result = mapper.Map<IEnumerable<SkillResponseDto>>(skills);
+        return Result<IEnumerable<SkillResponseDto>>.Success(result);
     }
 
     // add skills
-    public async Task<bool> AddSkillAsync(SkillRequestDto skillRequestDto, string accessToken)
+    public async Task<Result<bool>> AddSkillAsync(SkillRequestDto skillRequestDto, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
-            throw new Exception("User does not exist to add experience");
+            //throw new Exception("User does not exist to add experience");
+            return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
+                "User does not exist to add skills.",
+                StatusCode.NotFound));
 
         var toAddSkill = mapper.Map<Skill>(skillRequestDto);
         toAddSkill.UserId = existingUser.Id;
 
         var result = await unitOfWork.SkillRepository.AddAsync(toAddSkill);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(result);
     }
 
     // update skills
-    public async Task<bool> UpdateSkillAsync(SkillRequestDto skillRequestDto, Guid skillId, string accessToken)
+    public async Task<Result<bool>> UpdateSkillAsync(SkillRequestDto skillRequestDto, Guid skillId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId, skillId);
         if (existingSkill is null)
-            throw new Exception("User does not exist to update experience.");
+            return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
+                "User does not exist to update skills.",
+                StatusCode.NotFound));
 
         // Map DTO to existing entity to preserve Id
         mapper.Map(skillRequestDto, existingSkill);
@@ -53,19 +65,22 @@ public class SkillService(
 
         var result = await unitOfWork.SkillRepository.UpdateAsync(existingSkill);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(result);
     }
 
     // delete skills
-    public async Task<bool> DeleteSkillAsync(Guid skillId, string accessToken)
+    public async Task<Result<bool>> DeleteSkillAsync(Guid skillId, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId, skillId);
         if (existingSkill is null)
-            throw new Exception("User does not exist to delete experience.");
+            //throw new Exception("User does not exist to delete experience.");
+            return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
+                "User does not exist to delete skills.",
+                StatusCode.NotFound));
 
         var result = await unitOfWork.SkillRepository.DeleteAsync(existingSkill);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(result);
     }
 }

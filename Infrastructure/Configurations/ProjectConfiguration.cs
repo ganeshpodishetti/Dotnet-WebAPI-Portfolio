@@ -25,5 +25,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
 
         builder.Property(t => t.Skills)
             .HasMaxLength(2500);
+
+        builder.HasOne<User>()
+            .WithMany(u => u.Projects)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

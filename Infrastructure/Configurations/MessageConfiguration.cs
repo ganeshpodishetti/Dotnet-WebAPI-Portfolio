@@ -25,5 +25,10 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
 
         builder.Property(t => t.Subject)
             .HasMaxLength(250);
+
+        builder.HasOne<User>()
+            .WithMany(u => u.Messages)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

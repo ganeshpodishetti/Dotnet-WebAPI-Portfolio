@@ -1,7 +1,9 @@
 using Application.DTOs.Education;
 using Application.Interfaces;
 using AutoMapper;
+using Domain.Common;
 using Domain.Entities;
+using Domain.Errors;
 using Domain.Interfaces;
 using Domain.UnitOfWork;
 
@@ -14,29 +16,29 @@ public class EducationService(
     : IEducationService
 {
     // add education
-    public async Task<bool> AddEducationAsync(EducationRequestDto educationDto, string accessToken)
+    public async Task<Result<bool>> AddEducationAsync(EducationRequestDto educationDto, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if (existingUser is null)
-            throw new Exception("User does not exist to add education");
+            return Result<bool>.Failure(EducationErrors.UserNotFoundToAddEducation(userId.ToString()));
 
         var education = mapper.Map<Education>(educationDto);
         education.UserId = existingUser.Id;
 
         var result = await unitOfWork.EducationRepository.AddAsync(education);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(result);
     }
 
     // update education
-    public async Task<bool> UpdateEducationAsync(EducationRequestDto educationDto, Guid id, string accessToken)
+    public async Task<Result<bool>> UpdateEducationAsync(EducationRequestDto educationDto, Guid id, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId, id);
         if (existingEducation is null)
-            throw new Exception("Education record not found or does not belong to the user.");
+            return Result<bool>.Failure(EducationErrors.EducationNotBelongToUser(userId.ToString()));
 
         // Map DTO to existing entity to preserve id
         mapper.Map(educationDto, existingEducation);
@@ -44,30 +46,33 @@ public class EducationService(
 
         var result = await unitOfWork.EducationRepository.UpdateAsync(existingEducation);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(result);
     }
 
     // delete education
-    public async Task<bool> DeleteEducationAsync(Guid id, string accessToken)
+    public async Task<Result<bool>> DeleteEducationAsync(Guid id, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingEducation = await unitOfWork.EducationRepository.GetByUserIdAsync(userId, id);
         if (existingEducation is null)
-            throw new Exception("User does not exist to delete education.");
+            return Result<bool>.Failure(EducationErrors.EducationNotBelongToUser(userId.ToString()));
 
         var result = await unitOfWork.EducationRepository.DeleteAsync(existingEducation);
         await unitOfWork.CommitAsync();
-        return result;
+        return Result<bool>.Success(result);
     }
 
     // get education
-    public async Task<List<EducationResponseDto>> GetEducationsByIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<EducationResponseDto>>> GetEducationsByIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
         var educations = await unitOfWork.EducationRepository.GetAllByUserIdAsync(userId);
+        if (educations is null)
+            return Result<IEnumerable<EducationResponseDto>>.Failure(
+                EducationErrors.EducationNotBelongToUser(userId.ToString()));
 
-        var result = mapper.Map<List<EducationResponseDto>>(educations);
-        return result;
+        var educationsList = mapper.Map<IEnumerable<EducationResponseDto>>(educations);
+        return Result<IEnumerable<EducationResponseDto>>.Success(educationsList);
     }
 }

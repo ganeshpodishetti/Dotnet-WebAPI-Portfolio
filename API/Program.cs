@@ -6,11 +6,6 @@ using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    // .WriteTo.OpenTelemetry(options =>
-    // {
-    //     options.Endpoint = "http://localhost:5341/ingest/otlp/v1/traces";
-    //     options.Protocol = OtlpProtocol.HttpProtobuf;
-    // })
     .CreateLogger();
 
 try
@@ -62,6 +57,7 @@ try
     app.UseAuthorization();
     app.MapControllers();
     app.MapHealthChecks("/health");
+    app.UseStatusCodePages();
 
     app.Run();
 }
