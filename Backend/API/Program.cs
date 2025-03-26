@@ -44,10 +44,7 @@ try
 
     app.UseSerilogRequestLogging();
 
-    app.UseCors(policyBuilder => policyBuilder
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader());
+    app.UseCors("myPolicyName");
 
     app.UseStatusCodePages();
     app.UseExceptionHandler(_ => { });
