@@ -32,6 +32,16 @@ public static class UserErrors
         return BaseError.Failure("FailedToDeleteUser", $"Failed to delete user: {details}");
     }
 
+    public static BaseError FailedToCreateRole(string details)
+    {
+        return BaseError.Failure("FailedToCreateRole", $"Failed to create role: {details}");
+    }
+
+    public static BaseError FailedToAssignRole(string details)
+    {
+        return BaseError.Failure("FailedToAssignRole", $"Failed to assign role: {details}");
+    }
+
     public static BaseError FailedToChangePassword(string details)
     {
         return BaseError.Failure("FailedToChangePassword", $"Failed to change password: {details}");

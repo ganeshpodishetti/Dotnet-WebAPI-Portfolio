@@ -30,6 +30,7 @@ public class ProjectController(
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto request,
         IValidator<ProjectRequestDto> validator)
     {
@@ -45,6 +46,7 @@ public class ProjectController(
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateProject([FromBody] ProjectRequestDto request,
         [FromRoute] Guid id, IValidator<ProjectRequestDto> validator)
     {
@@ -60,6 +62,7 @@ public class ProjectController(
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteProject([FromRoute] Guid id)
     {
         var result = await projectService.DeleteProjectAsync(id, AccessToken);

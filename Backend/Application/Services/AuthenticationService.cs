@@ -4,6 +4,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Errors;
 using Domain.Interfaces;
 using Domain.Options;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Application.Services;
 
-public partial class AuthenticationService(
+public class AuthenticationService(
     IAuthenticationRepository authenticationRepository,
     IJwtTokenService jwtTokenService,
     IOptions<JwtTokenOptions> jwtOptions,
@@ -32,6 +33,13 @@ public partial class AuthenticationService(
 
         var createdUser = await authenticationRepository.RegisterUserAsync(user, request.Password);
 
+        if (createdUser.IsSuccess)
+        {
+            // Assign Admin role to the first registered user
+            var isFirstUser = !await authenticationRepository.IsInRoleAsync(user, UserRole.Admin.ToString());
+            if (isFirstUser) await authenticationRepository.AssignRoleAsync(user, UserRole.Admin.ToString());
+        }
+
         var result = mapper.Map<RegisterResponseDto>(user);
 
         return createdUser.Match(
@@ -47,8 +55,8 @@ public partial class AuthenticationService(
         if (user is null)
             return Result.Failure<LoginResponseDto>(UserErrors.UserNotFound(request.Email));
 
-        var validateUser = await authenticationRepository.ValidateCredentialsAsync(request.Email, request.Password);
-        if (!validateUser)
+        var signInUser = await authenticationRepository.SignInUserAsync(user, request.Password);
+        if (signInUser.IsFailure)
             return Result.Failure<LoginResponseDto>(UserErrors.LoginFailed(request.Email));
 
         var token = await jwtTokenService.GenerateJwtToken(user!);
@@ -89,6 +97,8 @@ public partial class AuthenticationService(
     }
 
     // Regex for special characters and spaces
-    [GeneratedRegex(@"[^a-zA-Z0-9.]")]
-    private static partial Regex MyRegex();
+    private static Regex MyRegex()
+    {
+        return new Regex(@"[^a-zA-Z0-9.]");
+    }
 }

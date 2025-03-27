@@ -31,6 +31,7 @@ public class SocialLinkController(
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddSocialLinks([FromBody] SocialLinkRequestDto request,
         IValidator<SocialLinkRequestDto> validator)
     {
@@ -46,6 +47,7 @@ public class SocialLinkController(
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateSocialLinks([FromBody] SocialLinkRequestDto request,
         [FromRoute] Guid id, IValidator<SocialLinkRequestDto> validator)
     {
@@ -61,6 +63,7 @@ public class SocialLinkController(
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteSocialLinks([FromRoute] Guid id)
     {
         var result = await socialLinkService.DeleteSocialLinkAsync(id, AccessToken);

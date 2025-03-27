@@ -6,7 +6,10 @@ using UserErrors = Domain.Errors.UserErrors;
 
 namespace Infrastructure.Repositories;
 
-internal class AuthenticationRepository(UserManager<User> userManager)
+internal class AuthenticationRepository(
+    UserManager<User> userManager,
+    RoleManager<IdentityRole<Guid>> roleManager,
+    SignInManager<User> signInManager)
     : IAuthenticationRepository
 {
     // login a user
@@ -19,11 +22,11 @@ internal class AuthenticationRepository(UserManager<User> userManager)
         return Result<bool>.Failure(UserErrors.FailedToUpdateUser(errors));
     }
 
-    // Validate user credentials
-    public async Task<bool> ValidateCredentialsAsync(string email, string password)
+    // login a user
+    public async Task<Result<bool>> SignInUserAsync(User user, string password)
     {
-        var user = await userManager.FindByEmailAsync(email);
-        return user != null && await userManager.CheckPasswordAsync(user, password);
+        var result = await signInManager.PasswordSignInAsync(user, password, false, false);
+        return result.Succeeded ? Result.Success(true) : Result<bool>.Failure(UserErrors.LoginFailed(user.Email!));
     }
 
     // Find a user by email
@@ -74,5 +77,27 @@ internal class AuthenticationRepository(UserManager<User> userManager)
 
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
         return Result<bool>.Failure(UserErrors.FailedToDeleteUser(errors));
+    }
+
+    public async Task<Result<bool>> AssignRoleAsync(User user, string roleName)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            var role = new IdentityRole<Guid>(roleName);
+            var createRoleResult = await roleManager.CreateAsync(role);
+            if (!createRoleResult.Succeeded)
+                return Result<bool>.Failure(UserErrors.FailedToCreateRole(roleName));
+        }
+
+        var result = await userManager.AddToRoleAsync(user, roleName);
+        if (result.Succeeded) return Result.Success(true);
+
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        return Result<bool>.Failure(UserErrors.FailedToAssignRole(errors));
+    }
+
+    public async Task<bool> IsInRoleAsync(User user, string roleName)
+    {
+        return await userManager.IsInRoleAsync(user, roleName);
     }
 }

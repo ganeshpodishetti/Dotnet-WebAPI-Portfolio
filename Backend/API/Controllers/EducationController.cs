@@ -29,6 +29,7 @@ public class EducationController(
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto request,
         IValidator<EducationRequestDto> validator)
     {
@@ -43,6 +44,7 @@ public class EducationController(
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto request,
         [FromRoute] Guid id, IValidator<EducationRequestDto> validator)
     {
@@ -57,6 +59,7 @@ public class EducationController(
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteEducationAsync([FromRoute] Guid id)
     {
         var result = await educationService.DeleteEducationAsync(id, AccessToken);

@@ -21,6 +21,7 @@ public class MessageController(
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetMessages()
     {
         var result = await messageService.GetMessagesByUserIdAsync(AccessToken);
@@ -30,6 +31,7 @@ public class MessageController(
     }
 
     [HttpGet("unreadMessages")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetUnReadMessages()
     {
         var result = await messageService.GetNumberOfUnread(AccessToken);
@@ -66,6 +68,7 @@ public class MessageController(
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteMessage([FromRoute] Guid id)
     {
         var result = await messageService.DeleteMessageAsync(id, AccessToken);

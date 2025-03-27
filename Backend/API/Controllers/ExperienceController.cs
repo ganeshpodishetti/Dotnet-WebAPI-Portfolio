@@ -30,6 +30,7 @@ public class ExperienceController(
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddExperience([FromBody] ExperienceRequestDto request,
         IValidator<ExperienceRequestDto> validator)
     {
@@ -44,6 +45,7 @@ public class ExperienceController(
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateExperienceAsync([FromBody] ExperienceRequestDto request,
         [FromRoute] Guid id, IValidator<ExperienceRequestDto> validator)
     {
@@ -59,6 +61,7 @@ public class ExperienceController(
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteExperienceAsync([FromRoute] Guid id)
     {
         var result = await experienceService.DeleteExperienceAsync(id, AccessToken);
