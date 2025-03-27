@@ -31,6 +31,7 @@ public class UserController(
 
     // PUT: api/user/UpdateUserProfile
     [HttpPatch]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto request,
         IValidator<UserRequestDto> validator)
     {

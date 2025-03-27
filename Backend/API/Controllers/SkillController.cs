@@ -30,6 +30,7 @@ public class SkillController(
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddSkillAsync([FromBody] SkillRequestDto request,
         IValidator<SkillRequestDto> validator)
     {
@@ -45,6 +46,7 @@ public class SkillController(
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateSkillAsync([FromBody] SkillRequestDto request, [FromRoute] Guid id,
         IValidator<SkillRequestDto> validator)
     {
@@ -60,6 +62,7 @@ public class SkillController(
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteSkillAsync([FromRoute] Guid id)
     {
         var result = await skillService.DeleteSkillAsync(id, AccessToken);

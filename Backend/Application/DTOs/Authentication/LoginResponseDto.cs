@@ -2,7 +2,7 @@ namespace Application.DTOs.Authentication;
 
 public record LoginResponseDto
 {
-    public required string UserName { get; init; }
+    public required string UserId { get; init; }
     public string? AccessToken { get; set; }
     public string? AccessTokenExpirationAtUtc { get; set; }
     public string? RefreshToken { get; set; }
