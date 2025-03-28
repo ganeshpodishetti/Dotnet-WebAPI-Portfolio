@@ -1,4 +1,4 @@
-using Domain.Common;
+using Domain.Common.ResultPattern;
 using Domain.Entities;
 
 namespace Domain.Interfaces;

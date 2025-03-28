@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Options;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,11 +14,14 @@ namespace Infrastructure.Services;
 
 internal class JwtTokenService(
     IOptions<JwtTokenOptions> jwtOptions,
-    UserManager<User> userManager) : IJwtTokenService
+    UserManager<User> userManager,
+    ILogger<JwtTokenService> logger) : IJwtTokenService
 {
     // Generate JWT Token
     public async Task<string> GenerateJwtToken(User user)
     {
+        logger.LogInformation("Generating JWT token for user: {UserId}", user.Id);
+
         var jwtSettings = jwtOptions.Value;
         if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
             throw new InvalidOperationException("JWT secret key is not configured.");
@@ -30,6 +34,7 @@ internal class JwtTokenService(
         var tokenOptions = GenerateTokenOptions(singingCredentials, claims);
 
         var jwtToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        logger.LogInformation("Successfully generated JWT token for user: {UserId}", user.Id);
         return jwtToken;
     }
 
@@ -37,22 +42,34 @@ internal class JwtTokenService(
     public Guid GetUserIdFromToken(string token)
     {
         if (string.IsNullOrEmpty(token))
+        {
+            logger.LogWarning("Empty token provided for user ID extraction");
             throw new ArgumentException("Token is required");
+        }
 
-        token = token.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            token = token.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
 
-        var handler = new JwtSecurityTokenHandler();
-        var validationParameters = GetValidationParameters();
-        var principal = handler.ValidateToken(token, validationParameters, out _);
-        var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var handler = new JwtSecurityTokenHandler();
+            var validationParameters = GetValidationParameters();
+            var principal = handler.ValidateToken(token, validationParameters, out _);
+            var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userIdString))
-            throw new UnauthorizedAccessException("Invalid token");
+            if (string.IsNullOrEmpty(userIdString))
+                throw new UnauthorizedAccessException("Invalid token");
 
-        if (!Guid.TryParse(userIdString, out var userId))
-            throw new InvalidOperationException("Invalid user ID format");
+            if (!Guid.TryParse(userIdString, out var userId))
+                throw new InvalidOperationException("Invalid user ID format");
 
-        return userId;
+            logger.LogInformation("Successfully extracted user ID from token");
+            return userId;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to extract user ID from token");
+            throw;
+        }
     }
 
     // Validate Current Token

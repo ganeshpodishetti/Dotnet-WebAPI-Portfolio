@@ -1,6 +1,6 @@
-using Domain.Errors;
+using Domain.Common.BaseErrors;
 
-namespace Domain.Common;
+namespace Domain.Common.ResultPattern;
 
 public static class ResultExtensions
 {

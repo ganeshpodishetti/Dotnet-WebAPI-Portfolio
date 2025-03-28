@@ -1,6 +1,6 @@
 using System.Net;
+using Domain.Common.BaseErrors;
 using Domain.Enums;
-using Domain.Errors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Handlers;
@@ -25,8 +25,12 @@ public static class GlobalErrorHandler
                 { StatusCode = (int)HttpStatusCode.Conflict },
             StatusCode.UnAuthorized => new ObjectResult(problemDetails)
                 { StatusCode = (int)HttpStatusCode.Unauthorized },
-            StatusCode.Failure => new BadRequestObjectResult(problemDetails)
+            StatusCode.BadRequest => new BadRequestObjectResult(problemDetails)
                 { StatusCode = (int)HttpStatusCode.BadRequest },
+            StatusCode.Validation => new UnprocessableEntityObjectResult(problemDetails)
+                { StatusCode = (int)HttpStatusCode.UnprocessableEntity },
+            StatusCode.InternalServerError => new ObjectResult(problemDetails)
+                { StatusCode = (int)HttpStatusCode.InternalServerError },
             _ => new BadRequestObjectResult(problemDetails) { StatusCode = (int)HttpStatusCode.BadRequest }
         };
     }

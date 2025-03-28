@@ -1,6 +1,6 @@
 using Domain.Enums;
 
-namespace Domain.Errors;
+namespace Domain.Common.BaseErrors;
 
 public abstract class BaseError(string title, string description, StatusCode statusCode)
 {
@@ -13,9 +13,9 @@ public abstract class BaseError(string title, string description, StatusCode sta
         return new GeneralError(string.Empty, string.Empty, StatusCode.Success);
     }
 
-    public static BaseError Failure(string title, string description)
+    public static BaseError BadRequest(string title, string description)
     {
-        return new GeneralError(title, description, StatusCode.Failure);
+        return new GeneralError(title, description, StatusCode.BadRequest);
     }
 
     public static BaseError NotFound(string title, string description)
@@ -31,6 +31,11 @@ public abstract class BaseError(string title, string description, StatusCode sta
     public static BaseError Conflict(string title, string description)
     {
         return new GeneralError(title, description, StatusCode.Conflict);
+    }
+
+    public static BaseError InternalServerError(string title, string description)
+    {
+        return new GeneralError(title, description, StatusCode.InternalServerError);
     }
 
     public static BaseError UnAuthorized(string title, string description)

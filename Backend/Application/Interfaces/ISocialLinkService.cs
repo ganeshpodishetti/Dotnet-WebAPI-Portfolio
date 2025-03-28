@@ -1,5 +1,5 @@
 using Application.DTOs.SocialLink;
-using Domain.Common;
+using Domain.Common.ResultPattern;
 
 namespace Application.Interfaces;
 

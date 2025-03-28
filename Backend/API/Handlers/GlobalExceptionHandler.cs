@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,14 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
     {
-        logger.LogError(exception,
-            "Exception occurred: {ErrorType} {Message}",
-            exception.GetType().Name,
-            exception.Message);
+        var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
+        logger.LogError(
+            exception,
+            "Error occurred processing {Path}. TraceId: {TraceId}. Error: {Error}",
+            httpContext.Request.Path,
+            traceId,
+            exception.Message
+        );
 
         var status = exception switch
         {

@@ -1,5 +1,5 @@
 using Application.DTOs.Education;
-using Domain.Common;
+using Domain.Common.ResultPattern;
 
 namespace Application.Interfaces;
 

@@ -1,3 +1,5 @@
+using Domain.Common.BaseErrors;
+
 namespace Domain.Errors;
 
 public static class UserErrors
@@ -14,37 +16,37 @@ public static class UserErrors
 
     public static BaseError LoginFailed(string email)
     {
-        return BaseError.Failure("login_failed", $"Invalid email: {email} or password.");
+        return BaseError.BadRequest("login_failed", $"Invalid email: {email} or password.");
     }
 
     public static BaseError FailedToUpdateUser(string details)
     {
-        return BaseError.Failure("FailedToUpdateUser", $"Failed to update user: {details}");
+        return BaseError.BadRequest("FailedToUpdateUser", $"Failed to update user: {details}");
     }
 
     public static BaseError FailedToRegisterUser(string details)
     {
-        return BaseError.Failure("FailedToRegisterUser", $"Failed to register user: {details}");
+        return BaseError.BadRequest("FailedToRegisterUser", $"Failed to register user: {details}");
     }
 
     public static BaseError FailedToDeleteUser(string details)
     {
-        return BaseError.Failure("FailedToDeleteUser", $"Failed to delete user: {details}");
+        return BaseError.BadRequest("FailedToDeleteUser", $"Failed to delete user: {details}");
     }
 
     public static BaseError FailedToCreateRole(string details)
     {
-        return BaseError.Failure("FailedToCreateRole", $"Failed to create role: {details}");
+        return BaseError.BadRequest("FailedToCreateRole", $"Failed to create role: {details}");
     }
 
     public static BaseError FailedToAssignRole(string details)
     {
-        return BaseError.Failure("FailedToAssignRole", $"Failed to assign role: {details}");
+        return BaseError.BadRequest("FailedToAssignRole", $"Failed to assign role: {details}");
     }
 
     public static BaseError FailedToChangePassword(string details)
     {
-        return BaseError.Failure("FailedToChangePassword", $"Failed to change password: {details}");
+        return BaseError.BadRequest("FailedToChangePassword", $"Failed to change password: {details}");
     }
 
     public static BaseError InvalidUserName(string userName)

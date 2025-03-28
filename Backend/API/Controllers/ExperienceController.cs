@@ -2,7 +2,7 @@ using API.Handlers;
 using API.Helpers;
 using Application.DTOs.Experience;
 using Application.Interfaces;
-using Domain.Common;
+using Domain.Common.ResultPattern;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,8 @@ namespace API.Controllers;
 [Authorize(Roles = "Admin")]
 public class ExperienceController(
     IExperienceService experienceService,
-    IAccessTokenHelper accessTokenHelper) : Controller
+    IAccessTokenHelper accessTokenHelper,
+    ILogger<ExperienceController> logger) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
@@ -21,37 +22,72 @@ public class ExperienceController(
     [AllowAnonymous]
     public async Task<IActionResult> GetExperiencesByUserId()
     {
+        logger.LogInformation("Retrieving experiences");
         var result = await experienceService.GetExperiencesByUserIdAsync(AccessToken);
         return result.Match(
-            success => Ok(result.Value),
-            error => error.ToActionResult());
+            success =>
+            {
+                logger.LogInformation("Successfully retrieved {Count} experiences", result.Value.Count());
+                return Ok(result.Value);
+            },
+            error =>
+            {
+                logger.LogError("Failed to retrieve experiences: {Error}", error.Description);
+                return error.ToActionResult();
+            });
     }
 
     [HttpPost]
     public async Task<IActionResult> AddExperience([FromBody] ExperienceRequestDto request)
     {
+        logger.LogInformation("Adding new experience at {Company}", request.CompanyName);
         var result = await experienceService.AddExperienceAsync(request, AccessToken);
         return result.Match(
-            success => Ok(new { message = "Experience added successfully" }),
-            error => error.ToActionResult());
+            success =>
+            {
+                logger.LogInformation("Successfully added experience at {Company}", request.CompanyName);
+                return Ok(new { message = "Experience added successfully" });
+            },
+            error =>
+            {
+                logger.LogError("Failed to add experience: {Error}", error.Description);
+                return error.ToActionResult();
+            });
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateExperienceAsync([FromBody] ExperienceRequestDto request,
-        [FromRoute] Guid id)
+    public async Task<IActionResult> UpdateExperienceAsync([FromBody] ExperienceRequestDto request, [FromRoute] Guid id)
     {
+        logger.LogInformation("Updating experience with ID: {Id}", id);
         var result = await experienceService.UpdateExperienceAsync(request, id, AccessToken);
         return result.Match(
-            success => Ok(new { message = "Experience edited successfully" }),
-            error => error.ToActionResult());
+            success =>
+            {
+                logger.LogInformation("Successfully updated experience with ID: {Id}", id);
+                return Ok(new { message = "Experience edited successfully" });
+            },
+            error =>
+            {
+                logger.LogError("Failed to update experience: {Error}", error.Description);
+                return error.ToActionResult();
+            });
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteExperienceAsync([FromRoute] Guid id)
     {
+        logger.LogInformation("Deleting experience with ID: {Id}", id);
         var result = await experienceService.DeleteExperienceAsync(id, AccessToken);
         return result.Match(
-            success => Ok(new { message = "Experience deleted successfully" }),
-            error => error.ToActionResult());
+            success =>
+            {
+                logger.LogInformation("Successfully deleted experience with ID: {Id}", id);
+                return Ok(new { message = "Experience deleted successfully" });
+            },
+            error =>
+            {
+                logger.LogError("Failed to delete experience: {Error}", error.Description);
+                return error.ToActionResult();
+            });
     }
 }

@@ -1,6 +1,6 @@
-using Domain.Errors;
+using Domain.Common.BaseErrors;
 
-namespace Domain.Common;
+namespace Domain.Common.ResultPattern;
 
 // This is a generic result class that can be used to return a value or an error.
 public class Result<TValue>

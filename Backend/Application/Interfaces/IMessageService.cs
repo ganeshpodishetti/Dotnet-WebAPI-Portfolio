@@ -1,5 +1,5 @@
 using Application.DTOs.Message;
-using Domain.Common;
+using Domain.Common.ResultPattern;
 
 namespace Application.Interfaces;
 
