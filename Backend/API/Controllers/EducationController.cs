@@ -21,7 +21,7 @@ public class EducationController(
     [AllowAnonymous]
     public async Task<IActionResult> GetEducationByIdAsync()
     {
-        var result = await educationService.GetEducationsByIdAsync(AccessToken);
+        var result = await educationService.GetEducationsByIdAsync();
         return result.Match(
             success => Ok(result.Value),
             error => error.ToActionResult());

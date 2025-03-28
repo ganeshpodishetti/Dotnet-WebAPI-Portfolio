@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public class Skill : BaseEntity, IUserEntity
 {
-    public required string SkillCategory { get; set; }
-    public List<string> SkillsTypes { get; set; } = [];
+    public required string SkillCategory { get; init; }
+    public List<string> SkillsTypes { get; init; } = [];
     public Guid UserId { get; set; }
 }

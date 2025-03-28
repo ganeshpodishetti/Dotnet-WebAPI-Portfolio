@@ -1,9 +1,13 @@
 namespace Application.DTOs.Authentication;
 
-public record RefreshTokenResponseDto
+public record RefreshTokenResponseDto(
+    string AccessToken,
+    string AccessTokenExpirationAtUtc,
+    string RefreshToken,
+    string RefreshTokenExpirationAtUtc)
 {
-    public required string AccessToken { get; init; }
-    public required string RefreshToken { get; init; }
-    public required string AccessTokenExpirationAtUtc { get; init; }
-    public required string RefreshTokenExpirationAtUtc { get; init; }
+    public RefreshTokenResponseDto()
+        : this(string.Empty, string.Empty, string.Empty, string.Empty)
+    {
+    }
 }

@@ -1,13 +1,12 @@
 namespace Application.DTOs.Experience;
 
-public record ExperienceResponseDto
-{
-    public Guid? Id { get; set; }
-    public string? Title { get; set; }
-    public string? CompanyName { get; set; }
-    public string? Location { get; set; }
-    public DateOnly? StartDate { get; set; }
-    public DateOnly? EndDate { get; set; }
-    public string? Description { get; set; }
-    public string? UpdatedAtUtc { get; set; }
-}
+public record ExperienceResponseDto(
+    string Id,
+    string Title,
+    string CompanyName,
+    string? Location,
+    DateOnly StartDate,
+    DateOnly? EndDate,
+    string? Description,
+    string? UpdatedAtUtc
+);

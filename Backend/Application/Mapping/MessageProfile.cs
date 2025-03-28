@@ -8,8 +8,19 @@ public class MessageProfile : Profile
 {
     public MessageProfile()
     {
+        // Dtos to Domain
         CreateMap<MessageRequestDto, Message>();
         CreateMap<UpdateMessageDto, Message>();
-        CreateMap<Message, MessageResponseDto>();
+
+        // Domain to Dtos
+        CreateMap<Message, MessageResponseDto>()
+            .ConstructUsing(src => new MessageResponseDto(
+                src.Id.ToString(),
+                src.Name,
+                src.Email,
+                src.Content,
+                src.SentAt.ToString(),
+                src.IsRead)
+            );
     }
 }

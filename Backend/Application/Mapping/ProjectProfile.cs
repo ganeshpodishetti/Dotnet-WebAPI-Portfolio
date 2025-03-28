@@ -8,9 +8,19 @@ public class ProjectProfile : Profile
 {
     public ProjectProfile()
     {
+        // Dtos to Domain
         CreateMap<ProjectRequestDto, Project>();
+
+        // Domain to Dtos
         CreateMap<Project, ProjectResponseDto>()
-            .ForMember(dest => dest.UpdatedAt, opt =>
-                opt.MapFrom(src => src.UpdatedAt.ToString()));
+            .ConstructUsing(src => new ProjectResponseDto(
+                src.Id.ToString(),
+                src.Name,
+                src.Description,
+                src.Url,
+                src.GithubUrl,
+                src.UpdatedAt.ToString(),
+                src.Skills
+            ));
     }
 }

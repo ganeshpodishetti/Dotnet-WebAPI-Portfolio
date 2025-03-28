@@ -25,10 +25,6 @@ public class AuthenticationService(
         if (userName)
             return Result.Failure<RegisterResponseDto>(UserErrors.InvalidUserName(request.UserName));
 
-        var existingUser = await authenticationRepository.FindByEmailAsync(request.Email);
-        if (existingUser is not null)
-            return Result.Failure<RegisterResponseDto>(UserErrors.UserAlreadyExists(existingUser.Email!));
-
         // Check if an admin already exists
         var adminExists = await authenticationRepository.CheckAdminExistsAsync();
         if (adminExists.Value)
@@ -86,14 +82,14 @@ public class AuthenticationService(
         var token = await jwtTokenService.GenerateJwtToken(user);
         var refreshToken = jwtTokenService.GenerateRefreshToken();
 
-        var response = mapper.Map<LoginResponseDto>(user);
-        response.AccessToken = token;
-        response.AccessTokenExpirationAtUtc = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes)
-            .ToString("yyyy-MM-dd HH:mm:ss tt");
-        response.RefreshToken = refreshToken;
-        response.RefreshTokenExpirationAtUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays)
-            .ToString("yyyy-MM-dd HH:mm:ss tt");
-
-        return response;
+        return new LoginResponseDto(
+            user.Id.ToString(), // userId
+            token, // accessToken
+            DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes)
+                .ToString("yyyy-MM-dd HH:mm:ss tt"), // accessTokenExpirationAtUtc
+            refreshToken, // refreshToken
+            DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays)
+                .ToString("yyyy-MM-dd HH:mm:ss tt") // refreshTokenExpirationAtUtc
+        );
     }
 }

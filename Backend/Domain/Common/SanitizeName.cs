@@ -16,7 +16,7 @@ public static partial class SanitizeName
             // Remove special characters and spaces
             var sanitizeName = MyRegex().Replace(name, "");
             // Check for special characters and spaces
-            return name == sanitizeName;
+            return name != sanitizeName;
         }
 
         // Regex for special characters and spaces

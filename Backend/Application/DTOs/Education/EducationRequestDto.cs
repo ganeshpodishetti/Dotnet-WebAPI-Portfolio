@@ -2,16 +2,14 @@ using FluentValidation;
 
 namespace Application.DTOs.Education;
 
-public record EducationRequestDto
-{
-    public required string School { get; set; }
-    public string Degree { get; set; } = null!;
-    public string Location { get; set; } = null!;
-    public string FieldOfStudy { get; set; } = null!;
-    public DateOnly StartDate { get; set; }
-    public DateOnly? EndDate { get; set; }
-    public string Description { get; set; } = null!;
-}
+public record EducationRequestDto(
+    string School,
+    string Degree,
+    string Location,
+    string FieldOfStudy,
+    DateOnly StartDate,
+    DateOnly? EndDate,
+    string Description);
 
 public class EducationRequestValidator : AbstractValidator<EducationRequestDto>
 {

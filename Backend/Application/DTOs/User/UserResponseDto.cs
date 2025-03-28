@@ -9,19 +9,20 @@ namespace Application.DTOs.User;
 
 public record UserResponseDto
 {
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? ProfilePicture { get; set; }
-    public string? Bio { get; set; }
-    public string? Headline { get; set; }
-    public string? Country { get; set; }
-    public string? City { get; set; }
-    public string? UpdatedAt { get; set; }
+    public string Id { get; init; } = null!;
+    public string? FirstName { get; init; }
+    public string? LastName { get; init; }
+    public string? ProfilePicture { get; init; }
+    public string? Bio { get; init; }
+    public string? Headline { get; init; }
+    public string? Country { get; init; }
+    public string? City { get; init; }
+    public string? UpdatedAt { get; init; }
 
-    public IEnumerable<EducationResponseDto>? Educations { get; set; }
-    public IEnumerable<ExperienceResponseDto>? Experiences { get; set; }
-    public IEnumerable<SkillResponseDto>? Skills { get; set; }
-    public IEnumerable<ProjectResponseDto>? Projects { get; set; }
-    public IEnumerable<SocialLinkResponseDto>? SocialLinks { get; set; }
-    public IEnumerable<MessageResponseDto>? Messages { get; set; }
+    public IEnumerable<EducationResponseDto>? Educations { get; init; }
+    public IEnumerable<ExperienceResponseDto>? Experiences { get; init; }
+    public IEnumerable<SkillResponseDto>? Skills { get; init; }
+    public IEnumerable<ProjectResponseDto>? Projects { get; init; }
+    public IEnumerable<SocialLinkResponseDto>? SocialLinks { get; init; }
+    public IEnumerable<MessageResponseDto>? Messages { get; init; }
 }

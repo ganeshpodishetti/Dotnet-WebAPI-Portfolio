@@ -8,13 +8,13 @@ public sealed class User : IdentityUser<Guid>, IUserEntity
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
-    public AboutMe AboutMe { get; set; } = new();
-    public ICollection<Education> Educations { get; set; } = [];
-    public ICollection<Experience> Experiences { get; set; } = [];
-    public ICollection<Project> Projects { get; set; } = [];
-    public ICollection<Skill> Skills { get; set; } = [];
-    public ICollection<SocialLink> SocialLinks { get; set; } = [];
-    public ICollection<Message> Messages { get; set; } = [];
+    public AboutMe AboutMe { get; init; } = new();
+    public ICollection<Education> Educations { get; init; } = [];
+    public ICollection<Experience> Experiences { get; init; } = [];
+    public ICollection<Project> Projects { get; init; } = [];
+    public ICollection<Skill> Skills { get; init; } = [];
+    public ICollection<SocialLink> SocialLinks { get; init; } = [];
+    public ICollection<Message> Messages { get; init; } = [];
 
     // Implement IUserEntity interface
     Guid IUserEntity.UserId
