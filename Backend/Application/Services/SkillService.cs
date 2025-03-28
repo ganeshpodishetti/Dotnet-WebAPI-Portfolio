@@ -17,14 +17,13 @@ public class SkillService(
     ILogger<SkillService> logger) : ISkillService
 {
     // get skills
-    public async Task<Result<IEnumerable<SkillResponseDto>>> GetAllSkillsByUserIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<SkillResponseDto>>> GetAllSkillsByUserIdAsync()
     {
         logger.LogInformation("Getting all skills for user");
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var skills = await unitOfWork.SkillRepository.GetAllByUserIdAsync(userId);
+        var skills = await unitOfWork.SkillRepository.GetAllAsync();
 
         var result = mapper.Map<IEnumerable<SkillResponseDto>>(skills);
-        logger.LogInformation("Successfully retrieved skills for user {UserId}", userId);
+        logger.LogInformation("Successfully retrieved skills for user");
         return Result<IEnumerable<SkillResponseDto>>.Success(result);
     }
 

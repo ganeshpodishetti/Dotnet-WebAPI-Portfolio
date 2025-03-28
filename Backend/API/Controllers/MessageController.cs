@@ -46,6 +46,7 @@ public class MessageController(
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> AddMessage([FromBody] MessageRequestDto request)
     {
         logger.LogInformation("Adding new message from: {Email}", request.Email);

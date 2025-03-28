@@ -23,7 +23,7 @@ public class SocialLinkController(
     public async Task<IActionResult> GetSocialLinksByUserId()
     {
         logger.LogInformation("Retrieving social links");
-        var result = await socialLinkService.GetSocialLinksByUserIdAsync(AccessToken);
+        var result = await socialLinkService.GetSocialLinksByUserIdAsync();
         return result.Match(
             success =>
             {

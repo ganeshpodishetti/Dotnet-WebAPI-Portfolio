@@ -17,16 +17,15 @@ public class ExperienceService(
     ILogger<ExperienceService> logger) : IExperienceService
 {
     // get experiences
-    public async Task<Result<IEnumerable<ExperienceResponseDto>>> GetExperiencesByUserIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<ExperienceResponseDto>>> GetExperiencesByUserIdAsync()
     {
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        logger.LogInformation("Retrieving experiences for user: {UserId}", userId);
+        logger.LogInformation("Retrieving all experiences for user");
 
-        var experiences = await unitOfWork.ExperienceRepository.GetAllByUserIdAsync(userId);
+        var experiences = await unitOfWork.ExperienceRepository.GetAllAsync();
         var result = mapper.Map<IEnumerable<ExperienceResponseDto>>(experiences).ToList();
 
-        logger.LogDebug("Successfully retrieved {Count} experience records for user {UserId}",
-            result.Count(), userId);
+        logger.LogDebug("Successfully retrieved {Count} experience records for user",
+            result.Count());
         return Result<IEnumerable<ExperienceResponseDto>>.Success(result);
     }
 

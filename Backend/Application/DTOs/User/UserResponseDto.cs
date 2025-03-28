@@ -9,7 +9,7 @@ namespace Application.DTOs.User;
 
 public record UserResponseDto
 {
-    public string Id { get; init; } = null!;
+    public required string Id { get; init; }
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
     public string? ProfilePicture { get; init; }

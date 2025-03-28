@@ -16,21 +16,14 @@ public class UserServices(
     ILogger<UserServices> logger) : IUserServices
 {
     // Get user profile by ID
-    public async Task<Result<UserResponseDto?>> GetProfileByIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<UserResponseDto>>> GetProfilesAsync()
     {
         logger.LogInformation("Getting user profile");
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var user = await unitOfWork.UserRepository.GetUserWithDetailsAsync(userId);
+        var users = await unitOfWork.UserRepository.GetUserDetailsAsync();
 
-        if (user == null)
-        {
-            logger.LogWarning("User profile not found for ID {UserId}", userId);
-            return Result<UserResponseDto?>.Success(null);
-        }
-
-        var responseDto = mapper.Map<UserResponseDto>(user);
-        logger.LogInformation("Successfully retrieved profile for user {UserId}", userId);
-        return Result<UserResponseDto?>.Success(responseDto);
+        var responseDtos = mapper.Map<IEnumerable<UserResponseDto>>(users);
+        logger.LogInformation("Successfully retrieved {users} user profiles", nameof(users));
+        return Result<IEnumerable<UserResponseDto>>.Success(responseDtos);
     }
 
     // Update user profile

@@ -23,7 +23,7 @@ public class SkillController(
     public async Task<IActionResult> GetSkillsAsync()
     {
         logger.LogInformation("Retrieving skills");
-        var result = await skillService.GetAllSkillsByUserIdAsync(AccessToken);
+        var result = await skillService.GetAllSkillsByUserIdAsync();
         return result.Match(
             success =>
             {

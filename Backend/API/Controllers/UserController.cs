@@ -24,7 +24,7 @@ public class UserController(
     public async Task<IActionResult> GetProfileById()
     {
         logger.LogInformation("Retrieving user profile");
-        var result = await userServices.GetProfileByIdAsync(AccessToken);
+        var result = await userServices.GetProfilesAsync();
         return result.Match(
             success =>
             {
