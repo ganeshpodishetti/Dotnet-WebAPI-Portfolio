@@ -1,5 +1,7 @@
 using Domain.Common;
 using Domain.Entities;
+using Domain.Enums;
+using Domain.Errors;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using UserErrors = Domain.Errors.UserErrors;
@@ -99,5 +101,19 @@ internal class AuthenticationRepository(
     public async Task<bool> IsInRoleAsync(User user, string roleName)
     {
         return await userManager.IsInRoleAsync(user, roleName);
+    }
+
+    public async Task<Result<bool>> CheckAdminExistsAsync()
+    {
+        var adminRoleName = UserRole.Admin.ToString();
+
+        // Check if Admin role exists
+        if (!await roleManager.RoleExistsAsync(adminRoleName))
+            return Result<bool>.Failure(new GeneralError("Admin exists", "Admin already exist.",
+                StatusCode.UnAuthorized));
+
+        // Check if any user has Admin role
+        var usersInRole = await userManager.GetUsersInRoleAsync(adminRoleName);
+        return Result.Success(usersInRole.Any());
     }
 }

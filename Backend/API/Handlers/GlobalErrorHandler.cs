@@ -3,9 +3,9 @@ using Domain.Enums;
 using Domain.Errors;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Extensions;
+namespace API.Handlers;
 
-public static class ErrorExtensions
+public static class GlobalErrorHandler
 {
     public static IActionResult ToActionResult(this BaseError error)
     {

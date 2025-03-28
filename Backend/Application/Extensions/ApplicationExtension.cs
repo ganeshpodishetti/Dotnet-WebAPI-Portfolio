@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Services;
+using Domain.Common;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,6 +28,7 @@ public static class ApplicationExtension
         services.AddScoped<ISkillService, SkillService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISocialLinkService, SocialLinkService>();
+        services.AddScoped<SanitizeName.ISanitizeName, SanitizeName.SanitizeNameService>();
 
         return services;
     }

@@ -1,11 +1,10 @@
-using API.Extensions;
+using API.Handlers;
 using API.Helpers;
 using Application.DTOs.Authentication;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Interfaces;
 using Domain.Options;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -18,19 +17,13 @@ public class AuthenticationController(
     IAuthenticationService authenticationService,
     IAccessTokenHelper accessTokenHelper,
     IJwtTokenService jwtTokenService,
-    IFormatValidation formatValidation,
     IOptions<JwtTokenOptions> jwtOptions) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request,
-        IValidator<RegisterRequestDto> validator)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
-
         var response = await authenticationService.RegisterAsync(request);
         return response.Match(
             success => Ok(response.Value),
@@ -39,13 +32,8 @@ public class AuthenticationController(
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto request,
-        IValidator<LoginRequestDto> validator)
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
-
         var response = await authenticationService.LoginAsync(request);
         return response.Match(
             success => Ok(response.Value),
@@ -54,13 +42,8 @@ public class AuthenticationController(
 
     [HttpPost("changePassword")]
     [Authorize]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request,
-        IValidator<ChangePasswordDto> validator)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
-
         var user = await authenticationService.ChangePasswordAsync(request, AccessToken);
         return user.Match(
             success => Ok(new { message = "Password changed successfully" }),

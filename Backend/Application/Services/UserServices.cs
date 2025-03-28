@@ -16,11 +16,7 @@ public class UserServices(IUnitOfWork unitOfWork, IMapper mapper, IJwtTokenServi
     public async Task<Result<UserResponseDto?>> GetProfileByIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-
         var user = await unitOfWork.UserRepository.GetUserWithDetailsAsync(userId);
-        if (user is null)
-            return Result.Failure<UserResponseDto?>(new GeneralError("user_doesn't_exists",
-                "User does not exist", StatusCode.NotFound));
 
         var responseDto = mapper.Map<UserResponseDto>(user);
         return Result<UserResponseDto?>.Success(responseDto);

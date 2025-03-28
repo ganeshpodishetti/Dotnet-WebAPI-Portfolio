@@ -1,4 +1,4 @@
-using API.Extensions;
+using API.Handlers;
 using Application.Interfaces;
 using Domain.Common;
 using Microsoft.AspNetCore.Authorization;

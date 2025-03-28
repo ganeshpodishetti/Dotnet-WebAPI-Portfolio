@@ -20,12 +20,17 @@ public class MessageService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var messages = await unitOfWork.MessageRepository.GetAllByUserIdAsync(userId);
-        if (messages is null)
-            return Result<IEnumerable<MessageResponseDto>>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to get messages", StatusCode.NotFound));
 
         var response = mapper.Map<IEnumerable<MessageResponseDto>>(messages);
         return Result<IEnumerable<MessageResponseDto>>.Success(response);
+    }
+
+    // get unread messages
+    public async Task<Result<int>> GetNumberOfUnread(string accessToken)
+    {
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var messages = await unitOfWork.MessageRepository.GetNumberOfUnread(userId);
+        return Result<int>.Success(messages);
     }
 
     // sent messages
@@ -33,13 +38,8 @@ public class MessageService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (existingUser is null)
-            return Result<bool>.Failure(new GeneralError("user_doesn't_exists", "User does not exist to add message",
-                StatusCode.NotFound));
-
         var message = mapper.Map<Message>(messageRequestDto);
-        message.UserId = existingUser.Id;
+        message.UserId = userId;
         message.SentAt = DateTime.UtcNow;
 
         var result = await unitOfWork.MessageRepository.AddAsync(message);
@@ -79,13 +79,5 @@ public class MessageService(
         var result = await unitOfWork.MessageRepository.DeleteAsync(existingMessage);
         await unitOfWork.CommitAsync();
         return Result<bool>.Success(result);
-    }
-
-    // get unread messages
-    public async Task<Result<int>> GetNumberOfUnread(string accessToken)
-    {
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var messages = await unitOfWork.MessageRepository.GetNumberOfUnread(userId);
-        return Result<int>.Success(messages);
     }
 }

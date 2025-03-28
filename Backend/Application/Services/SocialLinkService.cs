@@ -19,12 +19,8 @@ public class SocialLinkService(
     public async Task<Result<IEnumerable<SocialLinkResponseDto>>> GetSocialLinksByUserIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-
         var socialLinks = await unitOfWork.SocialLinkRepository.GetAllByUserIdAsync(userId);
-        if (socialLinks is null)
-            return Result<IEnumerable<SocialLinkResponseDto>>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to get social media links.",
-                StatusCode.NotFound));
+
         var response = mapper.Map<IEnumerable<SocialLinkResponseDto>>(socialLinks);
         return Result<IEnumerable<SocialLinkResponseDto>>.Success(response);
     }
@@ -34,14 +30,8 @@ public class SocialLinkService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (existingUser is null)
-            return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to add social media links.",
-                StatusCode.NotFound));
-
         var socialLink = mapper.Map<SocialLink>(socialLinkRequestDto);
-        socialLink.UserId = existingUser.Id;
+        socialLink.UserId = userId;
 
         var result = await unitOfWork.SocialLinkRepository.AddAsync(socialLink);
         await unitOfWork.CommitAsync();

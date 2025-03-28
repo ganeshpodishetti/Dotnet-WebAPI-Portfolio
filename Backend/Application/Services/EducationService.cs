@@ -15,17 +15,23 @@ public class EducationService(
     IJwtTokenService jwtTokenService)
     : IEducationService
 {
+    // get education
+    public async Task<Result<IEnumerable<EducationResponseDto>>> GetEducationsByIdAsync(string accessToken)
+    {
+        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+        var educations = await unitOfWork.EducationRepository.GetAllByUserIdAsync(userId);
+
+        var educationsList = mapper.Map<IEnumerable<EducationResponseDto>>(educations);
+        return Result<IEnumerable<EducationResponseDto>>.Success(educationsList);
+    }
+
     // add education
     public async Task<Result<bool>> AddEducationAsync(EducationRequestDto educationDto, string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (existingUser is null)
-            return Result<bool>.Failure(EducationErrors.UserNotFoundToAddEducation(userId.ToString()));
-
         var education = mapper.Map<Education>(educationDto);
-        education.UserId = existingUser.Id;
+        education.UserId = userId;
 
         var result = await unitOfWork.EducationRepository.AddAsync(education);
         await unitOfWork.CommitAsync();
@@ -60,19 +66,5 @@ public class EducationService(
         var result = await unitOfWork.EducationRepository.DeleteAsync(existingEducation);
         await unitOfWork.CommitAsync();
         return Result<bool>.Success(result);
-    }
-
-    // get education
-    public async Task<Result<IEnumerable<EducationResponseDto>>> GetEducationsByIdAsync(string accessToken)
-    {
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-
-        var educations = await unitOfWork.EducationRepository.GetAllByUserIdAsync(userId);
-        if (educations is null)
-            return Result<IEnumerable<EducationResponseDto>>.Failure(
-                EducationErrors.EducationNotBelongToUser(userId.ToString()));
-
-        var educationsList = mapper.Map<IEnumerable<EducationResponseDto>>(educations);
-        return Result<IEnumerable<EducationResponseDto>>.Success(educationsList);
     }
 }

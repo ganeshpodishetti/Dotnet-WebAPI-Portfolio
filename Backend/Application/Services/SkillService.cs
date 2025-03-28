@@ -19,12 +19,8 @@ public class SkillService(
     public async Task<Result<IEnumerable<SkillResponseDto>>> GetAllSkillsByUserIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-
         var skills = await unitOfWork.SkillRepository.GetAllByUserIdAsync(userId);
-        if (skills == null)
-            return Result<IEnumerable<SkillResponseDto>>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to get skills.",
-                StatusCode.NotFound));
+
         var result = mapper.Map<IEnumerable<SkillResponseDto>>(skills);
         return Result<IEnumerable<SkillResponseDto>>.Success(result);
     }
@@ -34,15 +30,8 @@ public class SkillService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (existingUser is null)
-            //throw new Exception("User does not exist to add experience");
-            return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to add skills.",
-                StatusCode.NotFound));
-
         var toAddSkill = mapper.Map<Skill>(skillRequestDto);
-        toAddSkill.UserId = existingUser.Id;
+        toAddSkill.UserId = userId;
 
         var result = await unitOfWork.SkillRepository.AddAsync(toAddSkill);
         await unitOfWork.CommitAsync();
@@ -74,7 +63,6 @@ public class SkillService(
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingSkill = await unitOfWork.SkillRepository.GetByUserIdAsync(userId, skillId);
         if (existingSkill is null)
-            //throw new Exception("User does not exist to delete experience.");
             return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
                 "User does not exist to delete skills.",
                 StatusCode.NotFound));

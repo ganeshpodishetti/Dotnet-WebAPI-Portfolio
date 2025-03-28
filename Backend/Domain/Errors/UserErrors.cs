@@ -52,4 +52,9 @@ public static class UserErrors
         return BaseError.Validation("InvalidUserName",
             $"Username {userName} is invalid. Username should not contain special characters or spaces.");
     }
+
+    public static BaseError AdminAlreadyExists(string email)
+    {
+        return BaseError.Conflict("admin_already_exists", "Application can only have one admin.");
+    }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using API.Filters;
 using API.Handlers;
 using API.Helpers;
 using Domain.Options;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
-using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
@@ -47,17 +47,17 @@ public static class WebApplicationBuilderExtension
                         ScheduledDelayMilliseconds = 1000
                     };
                 });
-            })
-            .WithMetrics(metrics =>
-            {
-                metrics.AddRuntimeInstrumentation()
-                    .AddMeter(
-                        "Microsoft.AspNetCore.Hosting",
-                        "Microsoft.AspNetCore.Server.Kestrel",
-                        "System.Net.Http",
-                        "API",
-                        "Microsoft.EntityFrameworkCore");
             });
+        // .WithMetrics(metrics =>
+        // {
+        //     metrics.AddRuntimeInstrumentation()
+        //         .AddMeter(
+        //             "Microsoft.AspNetCore.Hosting",
+        //             "Microsoft.AspNetCore.Server.Kestrel",
+        //             "System.Net.Http",
+        //             "API",
+        //             "Microsoft.EntityFrameworkCore");
+        // });
 
         // Registering the CORS policy
         builder.Services.AddCors(options =>
@@ -89,25 +89,29 @@ public static class WebApplicationBuilderExtension
                 context.ProblemDetails.Instance =
                     $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
 
-                context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
-
                 var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
                 context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
             };
         });
 
-        // Registering the DbContext
+        // Registering the IOptions
         builder.Services.Configure<ConnStringOptions>(
             builder.Configuration.GetSection(ConnStringOptions.ConnectionStrings));
         builder.Services.Configure<JwtTokenOptions>(
             builder.Configuration.GetSection(JwtTokenOptions.JwtConfig));
 
         // Registering the services
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(options =>
+        {
+            // Register the filter globally
+            options.Filters.AddService<GlobalRequestValidation>();
+        });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHttpContextAccessor();
 
         // Registering the Services
+        builder.Services.AddScoped<GlobalRequestValidation>();
         builder.Services.AddScoped<IAccessTokenHelper, AccessTokenHelper>();
         builder.Services.AddScoped<IFormatValidation, FormatValidation>();
     }
