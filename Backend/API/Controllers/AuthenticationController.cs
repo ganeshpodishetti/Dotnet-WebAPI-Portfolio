@@ -72,9 +72,9 @@ public class AuthenticationController(
             return Ok(new RefreshTokenResponseDto
             {
                 AccessToken = newAccessToken,
-                RefreshToken = newRefreshToken,
                 AccessTokenExpirationAtUtc = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes)
                     .ToString("yyyy-MM-dd HH:mm:ss tt"),
+                RefreshToken = newRefreshToken,
                 RefreshTokenExpirationAtUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays)
                     .ToString("yyyy-MM-dd HH:mm:ss tt")
             });

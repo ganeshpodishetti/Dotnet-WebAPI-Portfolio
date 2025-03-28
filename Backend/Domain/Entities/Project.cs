@@ -5,12 +5,12 @@ namespace Domain.Entities;
 
 public class Project : BaseEntity, IUserEntity
 {
-    public required string Name { get; set; }
-    public required string Description { get; set; }
+    public required string Name { get; init; }
+    public required string Description { get; init; }
     public string? Url { get; set; }
-    public required string GithubUrl { get; set; }
+    public required string GithubUrl { get; init; }
 
-    public List<string> Skills { get; set; } = [];
+    public List<string> Skills { get; init; } = [];
 
     public Guid UserId { get; set; }
 }

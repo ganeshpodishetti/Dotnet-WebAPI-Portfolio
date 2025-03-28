@@ -2,16 +2,14 @@ using FluentValidation;
 
 namespace Application.DTOs.User;
 
-public record UserRequestDto
-{
-    public string FirstName { get; set; } = null!;
-    public string LastName { get; set; } = null!;
-    public string? ProfilePicture { get; set; }
-    public string? Bio { get; set; }
-    public string Headline { get; set; } = null!;
-    public string? Country { get; set; }
-    public string? City { get; set; }
-}
+public record UserRequestDto(
+    string FirstName,
+    string LastName,
+    string ProfilePicture,
+    string Bio,
+    string Headline,
+    string Country,
+    string City);
 
 public class UserRequestValidator : AbstractValidator<UserRequestDto>
 {

@@ -2,11 +2,7 @@ using FluentValidation;
 
 namespace Application.DTOs.Skill;
 
-public record SkillRequestDto
-{
-    public required string SkillCategory { get; set; }
-    public required List<string> SkillsTypes { get; set; }
-}
+public record SkillRequestDto(string SkillCategory, List<string> SkillsTypes);
 
 public class SkillRequestValidator : AbstractValidator<SkillRequestDto>
 {

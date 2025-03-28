@@ -8,9 +8,16 @@ public class SkillProfile : Profile
 {
     public SkillProfile()
     {
+        // Dtos to Domain
         CreateMap<SkillRequestDto, Skill>();
+
+        // Domain to Dtos
         CreateMap<Skill, SkillResponseDto>()
-            .ForMember(dest => dest.UpdatedAt, opt =>
-                opt.MapFrom(src => src.UpdatedAt.ToString()));
+            .ConstructUsing(src => new SkillResponseDto(
+                src.Id.ToString(),
+                src.SkillCategory,
+                src.SkillsTypes,
+                src.UpdatedAt.ToString()
+            ));
     }
 }

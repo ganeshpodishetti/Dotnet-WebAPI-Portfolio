@@ -24,7 +24,9 @@ public class UserProfile : Profile
             .ForMember(dest => dest.Country, opt =>
                 opt.MapFrom(src => src.AboutMe.Country))
             .ForMember(dest => dest.City, opt =>
-                opt.MapFrom(src => src.AboutMe.City));
+                opt.MapFrom(src => src.AboutMe.City))
+            .ForMember(dest => dest.UpdatedAt, opt =>
+                opt.MapFrom(src => src.UpdatedAt.ToString()));
 
         CreateMap<User, LoginResponseDto>()
             .ForMember(dest => dest.UserId, opt =>
@@ -62,6 +64,6 @@ public class UserProfile : Profile
                 opt.MapFrom(src => src.City));
 
         // Reverse mapping
-        CreateMap<AboutMe, UserResponseDto>().ReverseMap();
+        //CreateMap<AboutMe, UserResponseDto>().ReverseMap();
     }
 }

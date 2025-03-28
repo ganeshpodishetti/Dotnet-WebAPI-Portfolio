@@ -16,10 +16,9 @@ public class EducationService(
     : IEducationService
 {
     // get education
-    public async Task<Result<IEnumerable<EducationResponseDto>>> GetEducationsByIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<EducationResponseDto>>> GetEducationsByIdAsync()
     {
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var educations = await unitOfWork.EducationRepository.GetAllByUserIdAsync(userId);
+        var educations = await unitOfWork.EducationRepository.GetAllAsync();
 
         var educationsList = mapper.Map<IEnumerable<EducationResponseDto>>(educations);
         return Result<IEnumerable<EducationResponseDto>>.Success(educationsList);

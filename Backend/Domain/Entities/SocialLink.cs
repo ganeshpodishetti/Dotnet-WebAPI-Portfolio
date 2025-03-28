@@ -5,8 +5,8 @@ namespace Domain.Entities;
 
 public class SocialLink : BaseEntity, IUserEntity
 {
-    public required string Platform { get; set; }
-    public required string Url { get; set; }
-    public string? Icon { get; set; }
+    public required string Platform { get; init; }
+    public required string Url { get; init; }
+    public string? Icon { get; init; }
     public Guid UserId { get; set; }
 }

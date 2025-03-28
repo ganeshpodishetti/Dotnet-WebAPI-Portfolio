@@ -2,11 +2,7 @@ using FluentValidation;
 
 namespace Application.DTOs.Authentication;
 
-public record LoginRequestDto
-{
-    public required string Email { get; init; }
-    public required string Password { get; init; }
-}
+public record LoginRequestDto(string Email, string Password);
 
 public class LoginRequestValidator : AbstractValidator<LoginRequestDto>
 {

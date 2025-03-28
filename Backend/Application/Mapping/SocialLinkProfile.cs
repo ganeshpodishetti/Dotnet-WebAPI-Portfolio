@@ -8,10 +8,17 @@ public class SocialLinkProfile : Profile
 {
     public SocialLinkProfile()
     {
+        // Dtos to Domain
         CreateMap<SocialLinkRequestDto, SocialLink>();
+
+        // Domain to Dtos
         CreateMap<SocialLink, SocialLinkResponseDto>()
-            .ForMember(dest => dest.UpdateAt, opt =>
-                opt.MapFrom(src => src.UpdatedAt.ToString()));
-        ;
+            .ConstructUsing(src => new SocialLinkResponseDto(
+                src.Id.ToString(),
+                src.Platform,
+                src.Url,
+                src.Icon,
+                src.UpdatedAt.ToString()
+            ));
     }
 }

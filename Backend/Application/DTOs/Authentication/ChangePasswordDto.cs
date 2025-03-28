@@ -2,11 +2,7 @@ using FluentValidation;
 
 namespace Application.DTOs.Authentication;
 
-public record ChangePasswordDto
-{
-    public required string CurrentPassword { get; init; }
-    public required string NewPassword { get; init; }
-}
+public record ChangePasswordDto(string CurrentPassword, string NewPassword);
 
 public class ChangePasswordValidator : AbstractValidator<ChangePasswordDto>
 {
