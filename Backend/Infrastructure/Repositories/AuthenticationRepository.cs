@@ -1,7 +1,7 @@
-using Domain.Common;
+using Domain.Common.BaseErrors;
+using Domain.Common.ResultPattern;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Errors;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using UserErrors = Domain.Errors.UserErrors;
@@ -14,7 +14,6 @@ internal class AuthenticationRepository(
     SignInManager<User> signInManager)
     : IAuthenticationRepository
 {
-    // login a user
     public async Task<Result<bool>> UpdateUserAsync(User user)
     {
         var result = await userManager.UpdateAsync(user);
