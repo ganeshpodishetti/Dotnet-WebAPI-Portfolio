@@ -62,8 +62,5 @@ public class UserProfile : Profile
                 opt.MapFrom(src => src.Country))
             .ForMember(dest => dest.City, opt =>
                 opt.MapFrom(src => src.City));
-
-        // Reverse mapping
-        //CreateMap<AboutMe, UserResponseDto>().ReverseMap();
     }
 }

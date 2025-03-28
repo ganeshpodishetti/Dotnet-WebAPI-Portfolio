@@ -5,7 +5,7 @@ namespace Application.Interfaces;
 
 public interface IUserServices
 {
-    Task<Result<UserResponseDto?>> GetProfileByIdAsync(string accessToken);
+    Task<Result<IEnumerable<UserResponseDto>>> GetProfilesAsync();
 
     Task<Result<bool>> UpdateProfileAsync(UserRequestDto userRequestDto, string accessToken);
 }

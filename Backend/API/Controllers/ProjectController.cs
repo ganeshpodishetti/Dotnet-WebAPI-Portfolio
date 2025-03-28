@@ -23,7 +23,7 @@ public class ProjectController(
     public async Task<IActionResult> GetProjectsByUserId()
     {
         logger.LogInformation("Retrieving projects for user");
-        var result = await projectService.GetProjectsByUserIdAsync(AccessToken);
+        var result = await projectService.GetProjectsByUserIdAsync();
         return result.Match(
             success =>
             {

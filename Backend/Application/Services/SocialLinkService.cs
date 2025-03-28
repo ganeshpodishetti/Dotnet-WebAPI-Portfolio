@@ -17,14 +17,13 @@ public class SocialLinkService(
     ILogger<SocialLinkService> logger) : ISocialLinkService
 {
     // get social media links
-    public async Task<Result<IEnumerable<SocialLinkResponseDto>>> GetSocialLinksByUserIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<SocialLinkResponseDto>>> GetSocialLinksByUserIdAsync()
     {
         logger.LogInformation("Getting social links for user");
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var socialLinks = await unitOfWork.SocialLinkRepository.GetAllByUserIdAsync(userId);
+        var socialLinks = await unitOfWork.SocialLinkRepository.GetAllAsync();
 
         var response = mapper.Map<IEnumerable<SocialLinkResponseDto>>(socialLinks);
-        logger.LogInformation("Successfully retrieved social links for user {UserId}", userId);
+        logger.LogInformation("Successfully retrieved social links for user");
         return Result<IEnumerable<SocialLinkResponseDto>>.Success(response);
     }
 

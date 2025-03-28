@@ -10,7 +10,7 @@ internal class UserRepository(PortfolioDbContext context)
 {
     private readonly PortfolioDbContext _context = context;
 
-    public async Task<User?> GetUserWithDetailsAsync(Guid userId)
+    public async Task<IEnumerable<User?>> GetUserDetailsAsync()
     {
         return await _context.Users
             .Include(u => u.Educations)
@@ -20,6 +20,6 @@ internal class UserRepository(PortfolioDbContext context)
             .Include(p => p.SocialLinks)
             .Include(p => p.Messages)
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId);
+            .ToListAsync();
     }
 }

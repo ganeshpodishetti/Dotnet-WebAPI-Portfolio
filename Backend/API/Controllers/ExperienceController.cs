@@ -23,7 +23,7 @@ public class ExperienceController(
     public async Task<IActionResult> GetExperiencesByUserId()
     {
         logger.LogInformation("Retrieving experiences");
-        var result = await experienceService.GetExperiencesByUserIdAsync(AccessToken);
+        var result = await experienceService.GetExperiencesByUserIdAsync();
         return result.Match(
             success =>
             {

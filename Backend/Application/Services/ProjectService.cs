@@ -17,14 +17,13 @@ public class ProjectService(
     ILogger<ProjectService> logger) : IProjectService
 {
     // get projects
-    public async Task<Result<IEnumerable<ProjectResponseDto>>> GetProjectsByUserIdAsync(string accessToken)
+    public async Task<Result<IEnumerable<ProjectResponseDto>>> GetProjectsByUserIdAsync()
     {
         logger.LogInformation("Getting projects for user");
-        var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-        var projects = await unitOfWork.ProjectRepository.GetAllByUserIdAsync(userId);
+        var projects = await unitOfWork.ProjectRepository.GetAllAsync();
 
         var projectWithSkills = mapper.Map<IEnumerable<ProjectResponseDto>>(projects);
-        logger.LogInformation("Successfully retrieved projects for user {UserId}", userId);
+        logger.LogInformation("Successfully retrieved projects for user");
         return Result<IEnumerable<ProjectResponseDto>>.Success(projectWithSkills);
     }
 
