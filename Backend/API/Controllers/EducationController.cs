@@ -1,9 +1,8 @@
-using API.Extensions;
+using API.Handlers;
 using API.Helpers;
 using Application.DTOs.Education;
 using Application.Interfaces;
 using Domain.Common;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,15 +10,15 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/education")]
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class EducationController(
     IEducationService educationService,
-    IAccessTokenHelper accessTokenHelper,
-    IFormatValidation formatValidation) : Controller
+    IAccessTokenHelper accessTokenHelper) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetEducationByIdAsync()
     {
         var result = await educationService.GetEducationsByIdAsync(AccessToken);
@@ -29,14 +28,8 @@ public class EducationController(
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto request,
-        IValidator<EducationRequestDto> validator)
+    public async Task<IActionResult> AddEducationAsync([FromBody] EducationRequestDto request)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
-
         var result = await educationService.AddEducationAsync(request, AccessToken);
         return result.Match(
             success => Ok(new { message = "Education added successfully" }),
@@ -44,14 +37,9 @@ public class EducationController(
     }
 
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateEducationAsync([FromBody] EducationRequestDto request,
-        [FromRoute] Guid id, IValidator<EducationRequestDto> validator)
+        [FromRoute] Guid id)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
-
         var result = await educationService.UpdateEducationAsync(request, id, AccessToken);
         return result.Match(
             success => Ok(new { message = "Education edited successfully" }),
@@ -59,7 +47,6 @@ public class EducationController(
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteEducationAsync([FromRoute] Guid id)
     {
         var result = await educationService.DeleteEducationAsync(id, AccessToken);

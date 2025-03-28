@@ -13,4 +13,5 @@ public interface IAuthenticationRepository
     Task<Result<bool>> DeleteUserAsync(string userId);
     Task<Result<bool>> AssignRoleAsync(User user, string roleName);
     Task<bool> IsInRoleAsync(User user, string roleName);
+    Task<Result<bool>> CheckAdminExistsAsync();
 }

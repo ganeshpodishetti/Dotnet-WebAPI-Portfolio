@@ -19,11 +19,7 @@ public class ExperienceService(
     public async Task<Result<IEnumerable<ExperienceResponseDto>>> GetExperiencesByUserIdAsync(string accessToken)
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
-
         var experiences = await unitOfWork.ExperienceRepository.GetAllByUserIdAsync(userId);
-        if (experiences is null)
-            return Result<IEnumerable<ExperienceResponseDto>>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to get experience", StatusCode.NotFound));
         var result = mapper.Map<IEnumerable<ExperienceResponseDto>>(experiences);
         return Result<IEnumerable<ExperienceResponseDto>>.Success(result);
     }
@@ -33,13 +29,8 @@ public class ExperienceService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (existingUser is null)
-            return Result<bool>.Failure(new GeneralError("user_doesn't_exists", "User does not exist to add experience",
-                StatusCode.NotFound));
-
         var experience = mapper.Map<Experience>(experienceRequestDto);
-        experience.UserId = existingUser.Id;
+        experience.UserId = userId;
 
         var result = await unitOfWork.ExperienceRepository.AddAsync(experience);
         await unitOfWork.CommitAsync();
@@ -54,7 +45,6 @@ public class ExperienceService(
 
         var existingExperience = await unitOfWork.ExperienceRepository.GetByUserIdAsync(userId, experienceId);
         if (existingExperience is null)
-            //throw new Exception("User does not exist to update experience.");
             return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
                 "User does not exist to update experience",
                 StatusCode.NotFound));
@@ -75,7 +65,6 @@ public class ExperienceService(
 
         var existingExperience = await unitOfWork.ExperienceRepository.GetByUserIdAsync(userId, experienceId);
         if (existingExperience is null)
-            //throw new Exception("User does not exist to delete experience.");
             return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
                 "User does not exist to delete experience",
                 StatusCode.NotFound));

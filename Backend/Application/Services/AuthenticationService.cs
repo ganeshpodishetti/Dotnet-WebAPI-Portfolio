@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Application.DTOs.Authentication;
 using Application.Interfaces;
 using AutoMapper;
@@ -16,29 +15,32 @@ public class AuthenticationService(
     IAuthenticationRepository authenticationRepository,
     IJwtTokenService jwtTokenService,
     IOptions<JwtTokenOptions> jwtOptions,
-    IMapper mapper) : IAuthenticationService
+    IMapper mapper,
+    SanitizeName.ISanitizeName sanitizeName) : IAuthenticationService
 {
     // register a new user
     public async Task<Result<RegisterResponseDto>> RegisterAsync(RegisterRequestDto request)
     {
-        // Check for special characters and spaces
-        if (request.UserName != SanitizeName(request.UserName!))
+        var userName = sanitizeName.SanitizeNameAsync(request.UserName);
+        if (userName)
             return Result.Failure<RegisterResponseDto>(UserErrors.InvalidUserName(request.UserName));
 
         var existingUser = await authenticationRepository.FindByEmailAsync(request.Email);
         if (existingUser is not null)
             return Result.Failure<RegisterResponseDto>(UserErrors.UserAlreadyExists(existingUser.Email!));
 
+        // Check if an admin already exists
+        var adminExists = await authenticationRepository.CheckAdminExistsAsync();
+        if (adminExists.Value)
+            return Result.Failure<RegisterResponseDto>(UserErrors.AdminAlreadyExists(request.Email!));
+
         var user = mapper.Map<User>(request);
 
         var createdUser = await authenticationRepository.RegisterUserAsync(user, request.Password);
 
         if (createdUser.IsSuccess)
-        {
             // Assign Admin role to the first registered user
-            var isFirstUser = !await authenticationRepository.IsInRoleAsync(user, UserRole.Admin.ToString());
-            if (isFirstUser) await authenticationRepository.AssignRoleAsync(user, UserRole.Admin.ToString());
-        }
+            await authenticationRepository.AssignRoleAsync(user, UserRole.Admin.ToString());
 
         var result = mapper.Map<RegisterResponseDto>(user);
 
@@ -56,20 +58,9 @@ public class AuthenticationService(
             return Result.Failure<LoginResponseDto>(UserErrors.UserNotFound(request.Email));
 
         var signInUser = await authenticationRepository.SignInUserAsync(user, request.Password);
-        if (signInUser.IsFailure)
-            return Result.Failure<LoginResponseDto>(UserErrors.LoginFailed(request.Email));
-
-        var token = await jwtTokenService.GenerateJwtToken(user!);
-        var refreshToken = jwtTokenService.GenerateRefreshToken();
-
-        var result = mapper.Map<LoginResponseDto>(user);
-        result.AccessToken = token;
-        result.RefreshToken = refreshToken;
-        result.RefreshTokenExpirationAtUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays)
-            .ToString("yyyy-MM-dd HH:mm:ss tt");
-        result.AccessTokenExpirationAtUtc = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes)
-            .ToString("yyyy-MM-dd HH:mm:ss tt");
-        return result;
+        return signInUser.IsFailure
+            ? Result.Failure<LoginResponseDto>(UserErrors.LoginFailed(request.Email))
+            : Result.Success(await GenerateAuthResponse(user));
     }
 
     // change user password
@@ -89,16 +80,20 @@ public class AuthenticationService(
         return success;
     }
 
-    // Find a user by username
-    private static string SanitizeName(string name)
+    // Token generation
+    private async Task<LoginResponseDto> GenerateAuthResponse(User user)
     {
-        // Remove special characters and spaces
-        return MyRegex().Replace(name, "");
-    }
+        var token = await jwtTokenService.GenerateJwtToken(user);
+        var refreshToken = jwtTokenService.GenerateRefreshToken();
 
-    // Regex for special characters and spaces
-    private static Regex MyRegex()
-    {
-        return new Regex(@"[^a-zA-Z0-9.]");
+        var response = mapper.Map<LoginResponseDto>(user);
+        response.AccessToken = token;
+        response.AccessTokenExpirationAtUtc = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes)
+            .ToString("yyyy-MM-dd HH:mm:ss tt");
+        response.RefreshToken = refreshToken;
+        response.RefreshTokenExpirationAtUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays)
+            .ToString("yyyy-MM-dd HH:mm:ss tt");
+
+        return response;
     }
 }

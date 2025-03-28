@@ -20,12 +20,8 @@ public class ProjectService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var projects = await unitOfWork.ProjectRepository.GetAllByUserIdAsync(userId);
-        if (projects is null)
-            return Result<IEnumerable<ProjectResponseDto>>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to get projects", StatusCode.NotFound));
 
         var projectWithSkills = mapper.Map<IEnumerable<ProjectResponseDto>>(projects);
-
         return Result<IEnumerable<ProjectResponseDto>>.Success(projectWithSkills);
     }
 
@@ -34,15 +30,8 @@ public class ProjectService(
     {
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
 
-        var existingUser = await unitOfWork.UserRepository.GetByIdAsync(userId);
-        if (existingUser is null)
-            //throw new Exception("User does not exist to add experience");
-            return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
-                "User does not exist to add experience",
-                StatusCode.NotFound));
-
         var project = mapper.Map<Project>(projectRequestDto);
-        project.UserId = existingUser.Id;
+        project.UserId = userId;
 
         var result = await unitOfWork.ProjectRepository.AddAsync(project);
         await unitOfWork.CommitAsync();
@@ -56,7 +45,6 @@ public class ProjectService(
         var userId = jwtTokenService.GetUserIdFromToken(accessToken);
         var existingProject = await unitOfWork.ProjectRepository.GetByUserIdAsync(userId, projectId);
         if (existingProject is null)
-            //throw new Exception("User does not exist to update experience.");
             return Result<bool>.Failure(new GeneralError("user_doesn't_exists",
                 "User does not exist to update experience",
                 StatusCode.NotFound));

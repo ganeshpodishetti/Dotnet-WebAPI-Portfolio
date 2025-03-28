@@ -33,15 +33,6 @@ internal class JwtTokenService(
         return jwtToken;
     }
 
-    // Generate Refresh Token
-    public string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
-    }
-
     // Get User Id from Token
     public Guid GetUserIdFromToken(string token)
     {
@@ -62,6 +53,49 @@ internal class JwtTokenService(
             throw new InvalidOperationException("Invalid user ID format");
 
         return userId;
+    }
+
+    // Validate Current Token
+    public bool ValidateCurrentToken(string token)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(token)) return false;
+            var handler = new JwtSecurityTokenHandler();
+            var validationParameters = GetValidationParameters();
+            handler.ValidateToken(token, validationParameters, out _);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    // Refresh Token
+    public async Task<(string AccessToken, string RefreshToken)> RefreshTokenAsync(string accessToken,
+        string refreshToken)
+    {
+        var userId = GetUserIdFromToken(accessToken);
+        var user = await userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+            throw new UnauthorizedAccessException("User not found");
+
+        // Generate new tokens
+        var newAccessToken = await GenerateJwtToken(user);
+        var newRefreshToken = GenerateRefreshToken();
+
+        return (newAccessToken, newRefreshToken);
+    }
+
+    // Generate Refresh Token
+    public string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
     }
 
     // Get Claims
@@ -110,37 +144,5 @@ internal class JwtTokenService(
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
-    }
-
-    public bool ValidateCurrentToken(string token)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(token)) return false;
-            var handler = new JwtSecurityTokenHandler();
-            var validationParameters = GetValidationParameters();
-            handler.ValidateToken(token, validationParameters, out _);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async Task<(string AccessToken, string RefreshToken)> RefreshTokenAsync(string accessToken,
-        string refreshToken)
-    {
-        var userId = GetUserIdFromToken(accessToken);
-        var user = await userManager.FindByIdAsync(userId.ToString());
-
-        if (user == null)
-            throw new UnauthorizedAccessException("User not found");
-
-        // Generate new tokens
-        var newAccessToken = await GenerateJwtToken(user);
-        var newRefreshToken = GenerateRefreshToken();
-
-        return (newAccessToken, newRefreshToken);
     }
 }

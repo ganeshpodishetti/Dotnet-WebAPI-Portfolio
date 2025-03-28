@@ -1,9 +1,8 @@
-using API.Extensions;
+using API.Handlers;
 using API.Helpers;
 using Application.DTOs.User;
 using Application.Interfaces;
 using Domain.Common;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,16 +10,16 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/user")]
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class UserController(
     IUserServices userServices,
-    IAccessTokenHelper accessTokenHelper,
-    IFormatValidation formatValidation) : Controller
+    IAccessTokenHelper accessTokenHelper) : Controller
 {
     private string AccessToken => accessTokenHelper.GetAccessToken();
 
     // GET: api/user/GetUserProfiles/id
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetProfileById()
     {
         var result = await userServices.GetProfileByIdAsync(AccessToken);
@@ -31,14 +30,8 @@ public class UserController(
 
     // PUT: api/user/UpdateUserProfile
     [HttpPatch]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto request,
-        IValidator<UserRequestDto> validator)
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UserRequestDto request)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-            return BadRequest(formatValidation.FormatValidationErrors(validationResult));
-
         var result = await userServices.UpdateProfileAsync(request, AccessToken);
         return result.Match(
             success => Ok(new { message = "Profile updated successfully" }),
