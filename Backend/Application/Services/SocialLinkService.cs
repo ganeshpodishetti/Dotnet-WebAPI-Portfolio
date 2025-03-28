@@ -70,7 +70,7 @@ public class SocialLinkService(
         if (!result)
         {
             logger.LogError("Failed to update social link for user {UserId}", userId);
-            return Result<bool>.Failure(SocialLinkErrors.FailedToUpdateSocialLink(nameof(userId)));
+            return Result<bool>.Failure(SocialLinkErrors.FailedToUpdateSocialLink(nameof(socialLinkId)));
         }
 
         await unitOfWork.CommitAsync();
@@ -94,7 +94,7 @@ public class SocialLinkService(
         if (!result)
         {
             logger.LogError("Failed to delete social link for user {UserId}", userId);
-            return Result<bool>.Failure(SocialLinkErrors.FailedToDeleteSocialLink(nameof(userId)));
+            return Result<bool>.Failure(SocialLinkErrors.FailedToDeleteSocialLink(nameof(socialLinkId)));
         }
 
         await unitOfWork.CommitAsync();

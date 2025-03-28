@@ -43,7 +43,7 @@ public class ExperienceService(
         if (!result)
         {
             logger.LogError("Failed to add experience record for user {UserId}", userId);
-            return Result<bool>.Failure(ExperienceErrors.FailedToAddExperience(userId.ToString()));
+            return Result<bool>.Failure(ExperienceErrors.FailedToAddExperience(nameof(userId)));
         }
 
         await unitOfWork.CommitAsync();
@@ -65,7 +65,7 @@ public class ExperienceService(
         {
             logger.LogWarning("Experience record {ExperienceId} not found for user {UserId}",
                 experienceId, userId);
-            return Result<bool>.Failure(ExperienceErrors.ExperienceNotBelongToUser(userId.ToString()));
+            return Result<bool>.Failure(ExperienceErrors.ExperienceNotBelongToUser(nameof(userId)));
         }
 
         mapper.Map(experienceRequestDto, existingExperience);
@@ -76,7 +76,7 @@ public class ExperienceService(
         {
             logger.LogError("Failed to update experience record {ExperienceId} for user {UserId}",
                 experienceId, userId);
-            return Result<bool>.Failure(ExperienceErrors.FailedToUpdateExperience(userId.ToString()));
+            return Result<bool>.Failure(ExperienceErrors.FailedToUpdateExperience(nameof(experienceId)));
         }
 
         await unitOfWork.CommitAsync();
@@ -97,7 +97,7 @@ public class ExperienceService(
         {
             logger.LogWarning("Experience record {ExperienceId} not found for user {UserId}",
                 experienceId, userId);
-            return Result<bool>.Failure(ExperienceErrors.ExperienceNotBelongToUser(userId.ToString()));
+            return Result<bool>.Failure(ExperienceErrors.ExperienceNotBelongToUser(nameof(userId)));
         }
 
         var result = await unitOfWork.ExperienceRepository.DeleteAsync(existingExperience);
@@ -105,7 +105,7 @@ public class ExperienceService(
         {
             logger.LogError("Failed to delete experience record {ExperienceId} for user {UserId}",
                 experienceId, userId);
-            return Result<bool>.Failure(ExperienceErrors.FailedToDeleteExperience(userId.ToString()));
+            return Result<bool>.Failure(ExperienceErrors.FailedToDeleteExperience(nameof(experienceId)));
         }
 
         await unitOfWork.CommitAsync();

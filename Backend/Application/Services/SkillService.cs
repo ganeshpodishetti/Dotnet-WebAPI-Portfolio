@@ -69,7 +69,7 @@ public class SkillService(
         if (!result)
         {
             logger.LogError("Failed to update skill for user {UserId}", userId);
-            return Result<bool>.Failure(SkillErrors.FailedToUpdateSkill(nameof(userId)));
+            return Result<bool>.Failure(SkillErrors.FailedToUpdateSkill(nameof(skillId)));
         }
 
         await unitOfWork.CommitAsync();
@@ -93,7 +93,7 @@ public class SkillService(
         if (!result)
         {
             logger.LogError("Failed to delete skill for user {UserId}", userId);
-            return Result<bool>.Failure(SkillErrors.FailedToDeleteSkill(nameof(userId)));
+            return Result<bool>.Failure(SkillErrors.FailedToDeleteSkill(nameof(skillId)));
         }
 
         await unitOfWork.CommitAsync();

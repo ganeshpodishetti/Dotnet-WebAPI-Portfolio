@@ -81,7 +81,7 @@ public class MessageService(
         if (!result)
         {
             logger.LogError("Failed to update message for user {UserId}", userId);
-            return Result<bool>.Failure(MessageErrors.FailedToUpdateMessage(nameof(userId)));
+            return Result<bool>.Failure(MessageErrors.FailedToUpdateMessage(nameof(messageId)));
         }
 
         await unitOfWork.CommitAsync();
@@ -105,7 +105,7 @@ public class MessageService(
         if (!result)
         {
             logger.LogError("Failed to delete message for user {UserId}", userId);
-            return Result<bool>.Failure(MessageErrors.FailedToDeleteMessage(nameof(userId)));
+            return Result<bool>.Failure(MessageErrors.FailedToDeleteMessage(nameof(messageId)));
         }
 
         await unitOfWork.CommitAsync();

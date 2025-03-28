@@ -70,7 +70,7 @@ public class ProjectService(
         if (!result)
         {
             logger.LogError("Failed to update project {ProjectId} for user {UserId}", projectId, userId);
-            return Result<bool>.Failure(ProjectErrors.FailedToUpdateProject(nameof(userId)));
+            return Result<bool>.Failure(ProjectErrors.FailedToUpdateProject(nameof(projectId)));
         }
 
         await unitOfWork.CommitAsync();
@@ -94,7 +94,7 @@ public class ProjectService(
         if (!result)
         {
             logger.LogError("Failed to delete project {ProjectId} for user {UserId}", projectId, userId);
-            return Result<bool>.Failure(ProjectErrors.FailedToDeleteProject(nameof(userId)));
+            return Result<bool>.Failure(ProjectErrors.FailedToDeleteProject(nameof(projectId)));
         }
 
         await unitOfWork.CommitAsync();

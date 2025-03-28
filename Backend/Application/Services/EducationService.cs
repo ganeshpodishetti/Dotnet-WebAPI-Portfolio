@@ -72,7 +72,7 @@ public class EducationService(
         if (!result)
         {
             logger.LogError("Failed to edit education record for user {UserId}", userId);
-            return Result<bool>.Failure(EducationErrors.FailedToUpdateEducation(nameof(userId)));
+            return Result<bool>.Failure(EducationErrors.FailedToUpdateEducation(nameof(id)));
         }
 
         await unitOfWork.CommitAsync();
@@ -98,7 +98,7 @@ public class EducationService(
         if (!result)
         {
             logger.LogError("Failed to delete education record {EducationId} for user {UserId}", id, userId);
-            return Result<bool>.Failure(EducationErrors.FailedToDeleteEducation(nameof(userId)));
+            return Result<bool>.Failure(EducationErrors.FailedToDeleteEducation(nameof(id)));
         }
 
         // Commit the changes to the database
