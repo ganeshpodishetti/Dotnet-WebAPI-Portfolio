@@ -3,6 +3,7 @@ using API.Helpers;
 using Application.DTOs.Project;
 using Application.Interfaces;
 using Domain.Common.ResultPattern;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +11,7 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/projects")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = nameof(UserRole.Admin))]
 public class ProjectController(
     IProjectService projectService,
     IAccessTokenHelper accessTokenHelper,
