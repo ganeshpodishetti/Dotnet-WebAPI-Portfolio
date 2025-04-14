@@ -5,16 +5,21 @@ namespace Domain.Entities;
 
 public sealed class User : IdentityUser<Guid>, IUserEntity
 {
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
+    // Add these properties for refresh token persistence
+    public string? RefreshToken { get; set; }
+    public DateTime RefreshTokenExpiryTime { get; set; }
 
-    public AboutMe AboutMe { get; init; } = new();
-    public ICollection<Education> Educations { get; init; } = [];
-    public ICollection<Experience> Experiences { get; init; } = [];
-    public ICollection<Project> Projects { get; init; } = [];
-    public ICollection<Skill> Skills { get; init; } = [];
-    public ICollection<SocialLink> SocialLinks { get; init; } = [];
-    public ICollection<Message> Messages { get; init; } = [];
+    public AboutMe AboutMe { get; set; } = new();
+    public ICollection<Education> Educations { get; set; } = new List<Education>();
+    public ICollection<Experience> Experiences { get; set; } = new List<Experience>();
+    public ICollection<Project> Projects { get; set; } = new List<Project>();
+    public ICollection<Skill> Skills { get; set; } = new List<Skill>();
+    public ICollection<SocialLink> SocialLinks { get; set; } = new List<SocialLink>();
+    public ICollection<Message> Messages { get; set; } = new List<Message>();
+
+    // Common properties for auditing
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Implement IUserEntity interface
     Guid IUserEntity.UserId
