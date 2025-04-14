@@ -2,12 +2,14 @@ using Application.DTOs.Authentication;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Common;
+using Domain.Common.BaseErrors;
 using Domain.Common.ResultPattern;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
 using Domain.Interfaces;
 using Domain.Options;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -18,6 +20,7 @@ public class AuthenticationService(
     IJwtTokenService jwtTokenService,
     IOptions<JwtTokenOptions> jwtOptions,
     IMapper mapper,
+    UserManager<User> userManager,
     ILogger<AuthenticationService> logger,
     SanitizeName.ISanitizeName sanitizeName) : IAuthenticationService
 {
@@ -35,7 +38,7 @@ public class AuthenticationService(
 
         // Check if an admin already exists
         var adminExists = await authenticationRepository.CheckAdminExistsAsync();
-        if (adminExists.Value)
+        if (adminExists.IsSuccess)
         {
             logger.LogWarning("Registration failed: Admin already exists. Attempted registration for email: {Email}",
                 request.Email);
@@ -121,6 +124,37 @@ public class AuthenticationService(
             logger.LogError("Failed to delete user {UserId}. Error: {Error}", userId, success.Error);
 
         return Result<bool>.Success(success.IsSuccess);
+    }
+
+    // logout a user
+    public async Task<Result<bool>> LogoutAsync(string accessToken)
+    {
+        try
+        {
+            var userId = jwtTokenService.GetUserIdFromToken(accessToken);
+            logger.LogInformation("Processing logout for user ID: {UserId}", userId);
+
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                logger.LogWarning("Logout attempt for non-existent user ID: {UserId}", userId);
+                return Result.Failure<bool>(UserErrors.UserNotFound(userId.ToString()));
+            }
+
+            // Invalidate refresh token
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.MinValue;
+            await userManager.UpdateAsync(user);
+
+            logger.LogInformation("User {UserId} logged out successfully", userId);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error during logout");
+            return Result<bool>.Failure(new GeneralError("Logout Error", "An error occurred during logout.",
+                StatusCode.BadRequest));
+        }
     }
 
     // Token generation

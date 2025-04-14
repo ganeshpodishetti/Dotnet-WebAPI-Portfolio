@@ -9,4 +9,5 @@ public interface IAuthenticationService
     Task<Result<LoginResponseDto>> LoginAsync(LoginRequestDto request);
     Task<Result<bool>> ChangePasswordAsync(ChangePasswordDto request, string accessToken);
     Task<Result<bool>> DeleteUserAsync(string accessToken);
+    Task<Result<bool>> LogoutAsync(string accessToken);
 }

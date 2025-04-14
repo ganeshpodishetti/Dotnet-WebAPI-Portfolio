@@ -93,17 +93,50 @@ internal class JwtTokenService(
     public async Task<(string AccessToken, string RefreshToken)> RefreshTokenAsync(string accessToken,
         string refreshToken)
     {
-        var userId = GetUserIdFromToken(accessToken);
-        var user = await userManager.FindByIdAsync(userId.ToString());
+        try
+        {
+            var userId = GetUserIdFromToken(accessToken);
+            var user = await userManager.FindByIdAsync(userId.ToString());
 
-        if (user == null)
-            throw new UnauthorizedAccessException("User not found");
+            if (user == null)
+                throw new UnauthorizedAccessException("User not found");
 
-        // Generate new tokens
-        var newAccessToken = await GenerateJwtToken(user);
-        var newRefreshToken = GenerateRefreshToken();
+            // Validate stored refresh token
+            if (user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                throw new UnauthorizedAccessException("Invalid or expired refresh token");
 
-        return (newAccessToken, newRefreshToken);
+            // Generate new tokens
+            var newAccessToken = await GenerateJwtToken(user);
+            var newRefreshToken = GenerateRefreshToken();
+
+            // Save new refresh token
+            await SaveRefreshTokenAsync(user, newRefreshToken);
+
+            return (newAccessToken, newRefreshToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to refresh token");
+            throw;
+        }
+    }
+
+    // Store refresh token in user entity
+    public async Task<bool> SaveRefreshTokenAsync(User user, string refreshToken)
+    {
+        try
+        {
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays);
+
+            var result = await userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to save refresh token for user: {UserId}", user.Id);
+            return false;
+        }
     }
 
     // Generate Refresh Token

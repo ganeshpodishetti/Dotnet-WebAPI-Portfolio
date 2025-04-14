@@ -131,4 +131,23 @@ public class AuthenticationController(
         var isValid = jwtTokenService.ValidateCurrentToken(token);
         return Ok(new { isAuthenticated = isValid });
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        logger.LogInformation("Processing logout request");
+        var result = await authenticationService.LogoutAsync(AccessToken);
+
+        return result.Match(
+            success =>
+            {
+                logger.LogInformation("User logged out successfully");
+                return Ok(new { message = "Logout successful" });
+            },
+            error =>
+            {
+                logger.LogError("Logout failed: {Error}", error.Description);
+                return error.ToActionResult();
+            });
+    }
 }
